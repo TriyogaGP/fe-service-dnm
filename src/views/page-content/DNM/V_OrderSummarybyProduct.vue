@@ -267,6 +267,27 @@
                 />
               </v-col>
             </v-row>
+            <v-row no-gutters>
+              <v-col
+                cols="12"
+                md="12"
+                class="pt-3"
+              >
+              <download-csv
+                v-if="DataExport.length"
+                :data="DataExport"
+                :labels="{ idProductSync: 'ID Product', productName: 'Nama Product', quantity: 'Quantity', totalPrice: 'Total Sales' }"
+                :name="`Data Export Summary (${convertDateTime(now)}).csv`"
+              >
+                <Button 
+                  color-button="#0bd369"
+                  icon-prepend-button="mdi mdi-export"
+                  nama-button="Data Export Summary *.CSV"
+                  size-button="small"
+                />
+              </download-csv>
+              </v-col>
+            </v-row>
           </v-card>
           <v-divider :thickness="2" class="border-opacity-100" color="white" />
         </template>
@@ -301,6 +322,7 @@ export default {
   data: () => ({
 		tanggal: [],
 		DataOrderSummarybyProduct: [],
+		DataExport: [],
     detailSummary: {
       grandTotal: '0',
       totalQty: '0'
@@ -350,6 +372,7 @@ export default {
       shippingType: [],
       statusFinal: [],
     },
+    now: new Date(),
 
     //notifikasi
     dialogNotifikasi: false,
@@ -394,6 +417,7 @@ export default {
 				return this.notifikasi("warning", 'Parameter kosong !', "1")
 			}
       this.DataOrderSummarybyProduct = [];
+      this.DataExport = [];
       this.detailSummary = {
         grandTotal: '0',
         totalQty: '0'
@@ -421,6 +445,14 @@ export default {
         const { listData, grandTotal, totalQty } = res.data.result
         this.DataOrderSummarybyProduct = listData
         this.detailSummary = {grandTotal, totalQty}
+        listData.map((val, i) => {
+          this.DataExport.push({
+            idProductSync: val.idProductSync,
+            productName: val.productName,
+            quantity: val.quantity,
+            totalPrice:`Rp.${val.totalPrice !== 0 ? this.currencyDotFormatNumber(val.totalPrice/1) : '0'}`,
+          })
+        })
 			})
 			.catch((err) => {
         this.notifikasi("error", err.response.data.message, "1")

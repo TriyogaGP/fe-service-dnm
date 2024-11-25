@@ -171,9 +171,10 @@ export default {
     },
     levelOptions: [
 			{ title: 'Super Administrator', value: 1 },
-			{ title: 'Administrator Pusat', value: 2 },
-			{ title: 'Administrator Wilayah', value: 3 },
-			{ title: 'Administrator Bidang', value: 4 },
+			{ title: 'Administrator', value: 2 },
+			{ title: 'Operation', value: 3 },
+			{ title: 'Marketing', value: 4 },
+			{ title: 'Guest', value: 5 },
 		],
     passType: '',
     endecryptType: '',

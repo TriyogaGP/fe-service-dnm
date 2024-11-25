@@ -160,7 +160,7 @@ export default {
     }
   },
   mounted() {
-    if(localStorage.getItem('user_token')) return this.$router.push(localStorage.getItem('roleID') === '4' ? {name: "Profile"} : {name: "Dashboard"});
+    if(localStorage.getItem('user_token')) return this.$router.push({name: "Dashboard"});
     this.getCMSSettings()
     this.createCaptcha();
   },
