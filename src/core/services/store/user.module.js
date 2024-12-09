@@ -3,6 +3,18 @@ import ApiService from "@/core/services/api.service";
 const token = localStorage.getItem('user_token')
 const timeout = 2000
 // action types
+export const GET_DASHBOARD_TRANSAKSI = "getDashboardTransaksi";
+export const GET_DASHBOARD_TRANSAKSI_DAILY = "getDashboardTransaksiDaily";
+export const GET_DASHBOARD_SHIPPING = "getDashboardShipping";
+export const GET_DASHBOARD_COURIER = "getDashboardCourier";
+export const GET_DASHBOARD_USER_ACTIVE = "getDashboardUserActive";
+export const GET_DASHBOARD_PRODUCT = "getDashboardProduct";
+export const GET_DASHBOARD_DETAIL_USER_ACTIVE = "getDashboardDetailUserActive";
+export const GET_DASHBOARD_DETAILORDER_USER_ACTIVE = "getDashboardDetailOrderUserActive";
+export const GET_DASHBOARD_RELOAD_TRANSAKSI = "getDashboardReloadTransaksi";
+export const GET_DASHBOARD_RELOAD_TRANSAKSI_DAILY = "getDashboardReloadTransaksiDaily";
+export const GET_DASHBOARD_RELOAD_USER_ACTIVE = "getDashboardReloadUserActive";
+
 export const GET_ADMINISTRATOR = "getAdministrator";
 export const GET_ADMINISTRATOR_BY = "getAdministratorbyUID";
 export const POST_ADMINISTRATOR = "postAdministrator";
@@ -22,6 +34,18 @@ export const HIT_ORDER_MANUAL = "hitOrderManual";
 export const HIT_COD_CONFIRM = "hitCODConfirm";
 
 // mutation types
+export const SET_DASHBOARD_TRANSAKSI = "SET_DASHBOARD_TRANSAKSI";
+export const SET_DASHBOARD_TRANSAKSI_DAILY = "SET_DASHBOARD_TRANSAKSI_DAILY";
+export const SET_DASHBOARD_SHIPPING = "SET_DASHBOARD_SHIPPING";
+export const SET_DASHBOARD_COURIER = "SET_DASHBOARD_COURIER";
+export const SET_DASHBOARD_USER_ACTIVE = "SET_DASHBOARD_USER_ACTIVE";
+export const SET_DASHBOARD_PRODUCT = "SET_DASHBOARD_PRODUCT";
+export const SET_DASHBOARD_DETAIL_USER_ACTIVE = "SET_DASHBOARD_DETAIL_USER_ACTIVE";
+export const SET_DASHBOARD_DETAILORDER_USER_ACTIVE = "SET_DASHBOARD_DETAILORDER_USER_ACTIVE";
+export const SET_DASHBOARD_RELOAD_TRANSAKSI = "SET_DASHBOARD_RELOAD_TRANSAKSI";
+export const SET_DASHBOARD_RELOAD_TRANSAKSI_DAILY = "SET_DASHBOARD_RELOAD_TRANSAKSI_DAILY";
+export const SET_DASHBOARD_RELOAD_USER_ACTIVE = "SET_DASHBOARD_RELOAD_USER_ACTIVE";
+
 export const SET_LOADINGTABLE = "SET_LOADINGTABLE";
 export const SET_ADMINISTRATOR = "SET_ADMINISTRATOR";
 export const SET_ADMINISTRATORBY = "SET_ADMINISTRATORBY";
@@ -38,6 +62,17 @@ export const SET_DETAIL_MEMBER_KNET = "SET_DETAIL_MEMBER_KNET";
 
 const state = {
   loadingtable: false,
+  dataDashboardTransaksi: [],
+  dataDashboardTransaksiDaily: [],
+  dataDashboardShipping: [],
+  dataDashboardCourier: [],
+  dataDashboardUserActive: [],
+  dataDashboardProduct: [],
+  dataDashboardDetailUserActive: [],
+  dataDashboardDetailOrderUserActive: [],
+  dataDashboardReloadTransaksi: [],
+  dataDashboardReloadTransaksiDaily: [],
+  dataDashboardReloadUserActive: [],
   dataAdministrator: [],
   dataAdministratorBy: null,
   dataOrder: [],
@@ -55,6 +90,39 @@ const state = {
 const mutations = {
   [SET_LOADINGTABLE](state, data) {
     state.loadingtable = data
+  },
+  [SET_DASHBOARD_TRANSAKSI](state, data) {
+    state.dataDashboardTransaksi = data
+  },
+  [SET_DASHBOARD_TRANSAKSI_DAILY](state, data) {
+    state.dataDashboardTransaksiDaily = data
+  },
+  [SET_DASHBOARD_SHIPPING](state, data) {
+    state.dataDashboardShipping = data
+  },
+  [SET_DASHBOARD_COURIER](state, data) {
+    state.dataDashboardCourier = data
+  },
+  [SET_DASHBOARD_USER_ACTIVE](state, data) {
+    state.dataDashboardUserActive = data
+  },
+  [SET_DASHBOARD_PRODUCT](state, data) {
+    state.dataDashboardProduct = data
+  },
+  [SET_DASHBOARD_DETAIL_USER_ACTIVE](state, data) {
+    state.dataDashboardDetailUserActive = data
+  },
+  [SET_DASHBOARD_DETAILORDER_USER_ACTIVE](state, data) {
+    state.dataDashboardDetailOrderUserActive = data
+  },
+  [SET_DASHBOARD_RELOAD_TRANSAKSI](state, data) {
+    state.dataDashboardReloadTransaksi = data
+  },
+  [SET_DASHBOARD_RELOAD_TRANSAKSI_DAILY](state, data) {
+    state.dataDashboardReloadTransaksiDaily = data
+  },
+  [SET_DASHBOARD_RELOAD_USER_ACTIVE](state, data) {
+    state.dataDashboardReloadUserActive = data
   },
   [SET_ADMINISTRATOR](state, data) {
     state.dataAdministrator = data
@@ -95,6 +163,27 @@ const mutations = {
 }
 
 const getters = {
+  dashboardTransaksiAll(state) {
+    return state.dataDashboardTransaksi;
+  },
+  dashboardTransaksiDailyAll(state) {
+    return state.dataDashboardTransaksiDaily;
+  },
+  dashboardShippingAll(state) {
+    return state.dataDashboardShipping;
+  },
+  dashboardCourierAll(state) {
+    return state.dataDashboardCourier;
+  },
+  dashboardUserActiveAll(state) {
+    return state.dataDashboardUserActive;
+  },
+  dashboardProductAll(state) {
+    return state.dataDashboardProduct;
+  },
+  dashboardDetailUserActiveAll(state) {
+    return state.dataDashboardDetailUserActive;
+  },
   administratorAll(state) {
     return state.dataAdministrator;
   },
@@ -119,6 +208,143 @@ const getters = {
 }
 
 const actions = {
+  [GET_DASHBOARD_TRANSAKSI](context, url) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/data-dashboard-transaksi?${url}`, token)
+      .then((response) => {
+        context.commit('SET_DASHBOARD_TRANSAKSI', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_TRANSAKSI_DAILY](context, url) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/data-dashboard-transaksi-daily?${url}`, token)
+      .then((response) => {
+        context.commit('SET_DASHBOARD_TRANSAKSI_DAILY', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_SHIPPING](context) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/data-dashboard-shipping`, token)
+      .then((response) => {
+        context.commit('SET_DASHBOARD_SHIPPING', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_COURIER](context) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/data-dashboard-order-courier`, token)
+      .then((response) => {
+        context.commit('SET_DASHBOARD_COURIER', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_USER_ACTIVE](context, url) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/data-dashboard-user-active?${url}`, token)
+      .then((response) => {
+        context.commit('SET_DASHBOARD_USER_ACTIVE', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_PRODUCT](context, url) {
+    return new Promise((resolve, reject) => {
+      context.commit('SET_LOADINGTABLE', true)
+      ApiService.get(`user/data-dashboard-product?${url}`, token)
+      .then((response) => {
+        context.commit('SET_LOADINGTABLE', false)
+        context.commit('SET_DASHBOARD_PRODUCT', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_DETAIL_USER_ACTIVE](context, url) {
+    return new Promise((resolve, reject) => {
+      context.commit('SET_LOADINGTABLE', true)
+      ApiService.get(`user/data-dashboard-detail-user-active?${url}`, token)
+      .then((response) => {
+        context.commit('SET_LOADINGTABLE', false)
+        context.commit('SET_DASHBOARD_DETAIL_USER_ACTIVE', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_DETAILORDER_USER_ACTIVE](context, url) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/data-dashboard-detail-order-user-active?${url}`, token)
+      .then((response) => {
+        context.commit('SET_DASHBOARD_DETAILORDER_USER_ACTIVE', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_RELOAD_TRANSAKSI](context, url) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/reload-dashboard-transaksi?${url}`, token)
+      .then((response) => {
+        context.commit('SET_DASHBOARD_RELOAD_TRANSAKSI', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_RELOAD_TRANSAKSI_DAILY](context, url) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/reload-dashboard-transaksi-daily?${url}`, token)
+      .then((response) => {
+        context.commit('SET_DASHBOARD_RELOAD_TRANSAKSI_DAILY', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [GET_DASHBOARD_RELOAD_USER_ACTIVE](context, url) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/reload-dashboard-user-active?${url}`, token)
+      .then((response) => {
+        context.commit('SET_DASHBOARD_RELOAD_USER_ACTIVE', response.data.result)
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+
   [GET_ADMINISTRATOR](context, url) {
     return new Promise((resolve, reject) => {
       context.commit('SET_LOADINGTABLE', true)

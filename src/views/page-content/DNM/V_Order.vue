@@ -121,7 +121,7 @@
               <Button 
                 color-button="#0bd369"
                 icon-prepend-button="mdi mdi-check"
-                nama-button="Check Confirmation COD"
+                nama-button="Confirmation COD"
                 size-button="x-small"
                 :disabled="item.raw.shippingType !== 'DELIVERY_COD' || item.raw.orderStatusLatest !== 'WAITING_FOR_COD_CONFIRMATION'"
                 @proses="confirmCOD(item.raw.orderNumber)"
@@ -454,8 +454,6 @@ export default {
       { title: "TIPE ORDER", key: "shippingType", sortable: false },
       { title: "STATUS ORDER", key: "orderStatusLatest", sortable: false },
     ],
-    rowsPerPageItems: { "items-per-page-options": [5, 10, 25, 50] },
-    totalItems: 0,
     statusOrder: 'ALL',
     invoice: '',
     statusOptions: [

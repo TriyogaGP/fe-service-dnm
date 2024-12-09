@@ -23,7 +23,7 @@
               <v-divider :thickness="2" class="border-opacity-75" color="white"/>
             </v-sheet>
             <v-card-text class="d-flex flex-column justify-center align-center">
-              <v-card-title class="text-black"><h6>Rp.<span v-html="currencyDotFormatNumber(detailSummary.grandTotal)" /></h6></v-card-title>
+              <v-card-title class="text-black"><h6>Rp.<span v-html="detailSummary.grandTotal !== 0 ? currencyDotFormatNumber(detailSummary.grandTotal) : '0'" /></h6></v-card-title>
             </v-card-text>
           </v-card>
         </v-col>
@@ -270,7 +270,7 @@
             <v-row no-gutters>
               <v-col
                 cols="12"
-                md="12"
+                md="3"
                 class="pt-3"
               >
               <download-csv
@@ -287,6 +287,7 @@
                 />
               </download-csv>
               </v-col>
+              <v-col cols="12" md="9"/>
             </v-row>
           </v-card>
           <v-divider :thickness="2" class="border-opacity-100" color="white" />

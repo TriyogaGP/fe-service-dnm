@@ -204,7 +204,7 @@
             <v-row no-gutters>
               <v-col
                 cols="12"
-                md="12"
+                md="3"
                 class="pt-3"
               >
               <download-csv
@@ -221,6 +221,7 @@
                 />
               </download-csv>
               </v-col>
+              <v-col cols="12" md="9"/>
             </v-row>
           </v-card>
           <v-divider :thickness="2" class="border-opacity-100" color="white" />

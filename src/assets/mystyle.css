@@ -1,6 +1,6 @@
 .v-overlay__scrim {
   background: #272727 !important;
-  opacity: 0.2 !important;
+  opacity: 0.75 !important;
 }
 .dp__input {
 	height: 50px !important;
@@ -133,7 +133,7 @@
   width: 16px;
 }
 .v-dialog--custom::-webkit-scrollbar-thumb {
-  background-color: #272727;
+  background-color: #28a154;
   border: 5px solid #e1e1f0;
   border-radius: 10rem;
 }
@@ -143,6 +143,33 @@
   top: -50rem;
   background: transparent;
 }
+
+.v-dialogsecond--custom {
+  width: 1000px !important;
+  height: 100% !important;
+  max-height: 400px !important;
+  font-size: 13px !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: 5px;
+  padding: 8px;
+	border-radius: 5px;
+}
+.v-dialogsecond--custom::-webkit-scrollbar {
+  width: 16px;
+}
+.v-dialogsecond--custom::-webkit-scrollbar-thumb {
+  background-color: #28a154;
+  border: 5px solid #e1e1f0;
+  border-radius: 10rem;
+}
+.v-dialogsecond--custom::-webkit-scrollbar-track {
+  position: absolute;
+  right: -3rem;
+  top: -50rem;
+  background: transparent;
+}
+
 .ScrollFullscreen {
   height: 100%;
   font-size: 13px !important;
@@ -156,7 +183,7 @@
   width: 16px;
 }
 .ScrollFullscreen::-webkit-scrollbar-thumb {
-  background-color: #272727;
+  background-color: #28a154;
   border: 5px solid #e1e1f0;
   border-radius: 10rem;
 }
@@ -209,7 +236,7 @@
 }
 .list-pick::-webkit-scrollbar-thumb {
   background-color: #000;
-  border: 5px solid #272727;
+  border: 5px solid #28a154;
   border-radius: 10rem;
 }
 .list-pick::-webkit-scrollbar-track {
@@ -298,7 +325,7 @@
 }
 
 @media screen and (min-width: 1920px) {
-  .v-dialog--custom {
+  .v-dialog--custom, .v-dialogsecond--custom {
     width: 1000px !important;
     height: 100% !important;
     max-height: 700px !important;

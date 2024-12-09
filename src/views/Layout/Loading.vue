@@ -4,7 +4,7 @@
 			<div class="kotakLoading">
 				<span class="loader">
 					<v-img class="gambarLogoScreen" :src="logoWebsite" />
-					<h2 style="color: black;">&nbsp;{{ singkatanWebsite }}&nbsp;</h2>
+					<h2 style="color: white;">&nbsp;{{ singkatanWebsite }}&nbsp;</h2>
 				</span>
 			</div>
     </v-overlay>

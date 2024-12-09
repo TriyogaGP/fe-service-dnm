@@ -37,9 +37,9 @@ const actions = {
         })
     });
   },
-  [GET_PROFILE](context, uid) {
+  [GET_PROFILE](context) {
     return new Promise((resolve, reject) => {
-      ApiService.put(`auth/profile/${uid}`, localStorage.getItem('user_token'))
+      ApiService.put(`auth/profile`, localStorage.getItem('user_token'))
       .then((response) => {
           context.commit('SET_PROFILE', response.data.result)
           resolve(response);

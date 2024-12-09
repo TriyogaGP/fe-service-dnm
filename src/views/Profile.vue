@@ -46,22 +46,6 @@
                         <span v-html="previewData.namaRole"></span>
                       </v-col>
                     </v-row>
-                    <v-row no-gutters v-if="inputAdministrator.level === 3">
-                      <v-col
-                      cols="12"
-                        md="4"
-                        class="pt-2 d-flex align-center font-weight-bold"
-                      >
-                        Wilayah
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        md="8"
-                        class="pt-3"
-                      >
-                        <span v-html="previewData.wilayah"></span>
-                      </v-col>
-                    </v-row>
                     <v-row no-gutters>
                       <v-col
                         cols="12"
@@ -234,7 +218,10 @@
           </v-col>
           <v-col cols="4" class="kotakright">
             <div class="mt-4 d-flex flex-column justify-space-between align-center">
-              <div class="avatar" @click="pilihFile()">
+              <div class="avatar">
+                <v-img src="user.png" />
+              </div>
+              <!-- <div class="avatar" @click="pilihFile()">
                 <span class="tulisan">
                   <v-icon color="white" icon="mdi mdi-camera-account" />&nbsp;Ubah Foto Profil
                 </span>
@@ -247,11 +234,10 @@
                 accept="image/*"
                 style="display: none"
                 @change="uploadFotoProfile($event)"
-              >
+              > -->
             </div>
             <p class="white--text mt-1 text-center" style="font-size: 10pt;"><strong>{{nama}}</strong></p>
             <p class="white--text text-center" style="font-size: 9pt;">{{namaRole}}</p>
-            <p class="white--text text-center" style="font-size: 9pt;">{{ wilayahPanjaitanText === '00' ? 'Tidak Memiliki Wilayah' : wilayahPanjaitanText }}</p>
             <v-divider :thickness="2" class="border-opacity-100" />
           </v-col>
         </v-row>
@@ -359,13 +345,11 @@ export default {
     inputAdministrator: {
       idAdmin: '',
       level: '',
-      wilayah: '',
       nama: '',
       username: '',
     },
     previewData: {
       idAdmin: '',
-      wilayah: '',
       namaRole: '',
       nama: '',
       username: '',
@@ -374,8 +358,10 @@ export default {
     },
     levelOptions: [
 			{ title: 'Super Administrator', value: 1 },
-			{ title: 'Administrator Pusat', value: 2 },
-			{ title: 'Administrator Wilayah', value: 3 },
+			{ title: 'Administrator', value: 2 },
+			{ title: 'Operation', value: 3 },
+			{ title: 'Marketing', value: 4 },
+			{ title: 'Guest', value: 5 },
 		],
     authData: {
       passwordLama: '',
@@ -423,17 +409,9 @@ export default {
     return { RectangleStencil }
   },
   computed: {
-    ...mapState({
-			wilayahpanjaitanOptions: store => store.setting.wilayahpanjaitanOptions,
-		}),
     ...mapGetters({
       dataprofile: 'auth/dataprofile',
     }),
-    wilayahPanjaitanText(){
-      let wilayah = localStorage.getItem("wilayah")
-      let hasil = wilayah === '00' ? '00' : this.wilayahpanjaitanOptions.filter(str => str.kode === wilayah)
-      return hasil === '00' ? '00' : hasil.length ? `Wilayah ${hasil[0].label}` : '-'
-		},
   },
   watch:{
 		dataprofile:{
@@ -442,7 +420,6 @@ export default {
         this.previewData = {
           idAdmin: value.idAdmin,
           namaRole: value.namaRole,
-          wilayah: value.namaWilayah,
           nama: this.uppercaseLetterFirst2(value.nama),
           username: value.username,
           password: value.kataSandi,
@@ -452,7 +429,6 @@ export default {
           idAdmin: value.idAdmin,
           nama: this.uppercaseLetterFirst2(value.nama),
           level: value.consumerType,
-          wilayah: value.kodeWilayah,
           username: value.username,
         }
         localStorage.setItem('fotoProfil', this.previewData.fotoProfil)
@@ -462,7 +438,7 @@ export default {
       deep: true,
 			handler(value){
 				if (value === '1') {
-          this.getProfile(localStorage.getItem("idLogin"))
+          this.getProfile()
           this.passType = true
           this.endecryptType = false
           this.clearForm()
@@ -496,13 +472,11 @@ export default {
     this.passTypeLama = false
     this.passTypeBaru = false
     this.passTypeConfBaru = false
-		this.getWilayahPanjaitan()
   },
   methods: {
     ...mapActions({
       fetchData: 'fetchData',
       uploadFiles: 'upload/uploadFiles',
-			getWilayahPanjaitan: 'setting/getWilayahPanjaitan',
       getProfile: 'auth/getProfile',
     }),
     SimpanDataProfile(){
@@ -511,14 +485,13 @@ export default {
         consumerType: this.inputAdministrator.level,
         nama: this.inputAdministrator.nama,
         username: this.inputAdministrator.username,
-        wilayah: this.inputAdministrator.wilayah,
       }
       this.$store.dispatch('auth/postProfile', bodyData)
       .then((res) => {
         this.kondisiForm = true
         localStorage.setItem('nama', this.inputAdministrator.nama);
         this.clearForm()
-        this.getProfile(localStorage.getItem('idLogin'))
+        this.getProfile()
         this.notifikasi("success", res.data.message, "2")
 			})
 			.catch((err) => {
@@ -536,7 +509,7 @@ export default {
       .then((res) => {
         this.kondisiForm = true
         this.clearForm()
-        this.getProfile(localStorage.getItem('idLogin'))
+        this.getProfile()
         this.notifikasi("success", res.data.message, "1")
 			})
 			.catch((err) => {
@@ -781,12 +754,12 @@ export default {
   overflow: hidden;
   width: 185px;
   height: 185px;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
-.avatar:hover {
+/* .avatar:hover {
   border: solid 2px #FFF;
   opacity: 0.5;
-}
+} */
 
 .avatar:hover img {
   position: absolute;
