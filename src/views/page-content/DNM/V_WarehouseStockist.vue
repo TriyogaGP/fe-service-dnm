@@ -77,6 +77,8 @@
                 size-button="small"
                 :disabled-button="!DataWarehouseStockist.length"
                 @proses="() => {
+                  DataWarehouseStockist = []
+                  pageSummary.last = ''
                   CheckProses(limit, jenis, searchData)
                 }"
               />
@@ -88,6 +90,8 @@
                 :disabled-button="!DataWarehouseStockist.length"
                 @proses="() => {
                   searchData = ''
+                  DataWarehouseStockist = []
+                  pageSummary.last = ''
                   CheckProses(limit, jenis, searchData)
                 }"
               />
@@ -95,9 +99,53 @@
           </v-row>
           <v-divider :thickness="2" class="border-opacity-100" color="white" />
         </template>
-        <template #bottom />
+        <template #bottom>
+          <v-divider :thickness="2" class="border-opacity-100" color="white" />
+          <v-row no-gutters>
+            <v-col cols="12" lg="12" class="pa-2 d-flex justify-center align-center">
+              <Button 
+                color-button="#0bd369"
+                icon-prepend-button="mdi mdi-view-agenda"
+                nama-button="Lihat Data Lainnya"
+                :disabled-button="!pageSummary.hasNext"
+                @proses="() => {
+                  CheckProses(limit, jenis, searchData)
+                }"
+              />
+            </v-col>
+          </v-row>
+        </template>
       </v-data-table>
     </v-card>
+    <v-dialog
+      v-model="detailWHStk"
+      scrollable
+      persistent
+      transition="dialog-bottom-transition"
+      width="auto"
+    >
+      <v-card color="background-dialog-card">
+        <v-toolbar color="surface">
+          <v-toolbar-title>Detail Warehouse & Stockist</v-toolbar-title>
+          <v-spacer />
+          <v-toolbar-items>
+            <Button
+              variant="plain"
+              color-button="#ffffff"
+              icon-button="mdi mdi-close"
+              model-button="comfortable"
+              size-button="large"
+              @proses="() => { detailWHStk = false; previewData = ''; }"
+            />
+          </v-toolbar-items>
+        </v-toolbar>
+        <v-card-text class="pt-4 v-dialog--custom">
+          haha
+        </v-card-text>
+        <v-divider :thickness="2" class="border-opacity-100" color="black" />
+        <v-card-actions />
+      </v-card>
+    </v-dialog>
     <v-dialog
       v-model="dialogNotifikasi"
       transition="dialog-bottom-transition"
@@ -129,10 +177,15 @@ export default {
     searchData: '',
 		DataWarehouseStockist: [],
     itemsPerPage: 1000,
-    limit: 200,
+    limit: 10,
+    pageSummary: {
+      last: '',
+      hasNext: false,
+    },
 		headers: [
       { title: "NO", key: "number", sortable: false, width: "5%" },
       { title: "#", key: "data-table-expand", sortable: false, width: "3%" },
+      { title: "Jenis", key: "type", sortable: false },
       { title: "Location Code", key: "locationCode", sortable: false },
       { title: "Nama", key: "fullname", sortable: true },
       { title: "Alamat", key: "address", sortable: false, width: "50%" },
@@ -143,7 +196,7 @@ export default {
 			{ title: 'STOCKIST' },
 		],
     previewData: '',
-    DialogSurvei: false,
+    detailWHStk: false,
 
     //notifikasi
     dialogNotifikasi: false,
@@ -172,7 +225,19 @@ export default {
     warehousestockistAll: {
 			deep: true,
 			handler(value) {
-        this.DataWarehouseStockist = value.records
+        this.DataWarehouseStockist = this.DataWarehouseStockist.concat(value.records)
+        this.pageSummary = {
+          last: value.pageSummary.last,
+          hasNext: value.pageSummary.hasNext,
+        }
+      }
+		},
+    jenis: {
+			deep: true,
+			handler(value) {
+        this.DataWarehouseStockist = []
+        this.pageSummary.last = ''
+        this.CheckProses(this.limit, value, this.searchData);
       }
 		},
   },
@@ -185,11 +250,15 @@ export default {
       getWarehouseStockist: 'user/getWarehouseStockist',
     }),
     CheckProses(limit, type, keyword) {
-      this.DataWarehouseStockist = []
-      
-      let cari;
+      let cari, last;
 			if(keyword) cari = keyword
-      this.getWarehouseStockist(qs.stringify({ type, limit, keyword: cari, status: 'ACTIVE' }, { encode: false }))
+			if(this.pageSummary.last) last = this.pageSummary.last
+      this.getWarehouseStockist(qs.stringify({ type, last, limit, keyword: cari, status: 'ACTIVE' }, { encode: false }))
+    },
+    DetailData(item) {
+      this.detailWHStk = true
+      console.log(item);
+      
     },
     copyText(text, nomeklatur) {
       let testingCodeToCopy = document.querySelector('#testing-code-on')

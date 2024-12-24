@@ -235,7 +235,7 @@
             nama-button="Detail Product"
             size-button="small"
             :disabled="kondisiProduct"
-            @proses="bukaDetailProductDialog(pageDetailProduct, limitDetailProduct)"
+            @proses="bukaDetailProductDialog(pageDetailProduct, limitDetailProduct, searchDataProduct)"
           />
         </v-col>
       </v-row>
@@ -390,9 +390,10 @@
               size-button="large"
               @proses="() => {
                 detailProduct = false;
-                DataDetailProduct = []
-                pageDetailProduct = 1
-                limitDetailProduct = 20
+                searchDataProduct = '';
+                DataDetailProduct = [];
+                pageDetailProduct = 1;
+                limitDetailProduct = 20;
               }"
             />
           </v-toolbar-items>
@@ -455,7 +456,30 @@
               Total Sold Last Month: {{ item.raw.totalSoldLastMonth }}<br>
               Total Sold Last90Day: {{ item.raw.totalSoldLast90Day }}
             </template>
-            <template #top />
+            <template #top>
+              <v-row no-gutters class="pa-2">
+                <v-col cols="12" md="7" />
+                <v-col cols="12" md="5" class="d-flex align-center">
+                  <TextField
+                    v-model="searchDataProduct"
+                    icon-prepend-tf="mdi mdi-magnify"
+                    label-tf="Pencarian..."
+                    :clearable-tf="true"
+                    @click:clear="() => {
+                      DataDetailProduct = []
+                      pageDetailProduct = 1
+                      if(detailProduct) prosesDetailProduct(pageDetailProduct, limitDetailProduct)
+                    }"
+                    @keyup.enter="() => {
+                      DataDetailProduct = []
+                      pageDetailProduct = 1
+                      if(detailProduct) prosesDetailProduct(pageDetailProduct, limitDetailProduct, searchDataProduct)
+                    }"
+                  />
+                </v-col>
+              </v-row>
+              <v-divider :thickness="2" class="border-opacity-100" color="white" />
+            </template>
             <template #bottom />
           </v-data-table>
         </v-card-text>
@@ -595,6 +619,7 @@ export default {
   components: { ChartBar, ChartDonut, Podium, PopUpNotifikasi },
   data: () => ({
     roleID: '',
+    searchDataProduct: '',
     tahunTrx: '',
     bulanTrx: '',
     bulanUser: '',
@@ -796,7 +821,7 @@ export default {
 			deep: true,
 			handler(value) {
         this.DataDetailProduct = []
-        if(this.detailProduct) this.prosesDetailProduct(value, this.limitDetailProduct)
+        if(this.detailProduct) this.prosesDetailProduct(value, this.limitDetailProduct, this.searchDataProduct)
 			}
 		},
     limitDetailProduct: {
@@ -804,7 +829,7 @@ export default {
 			handler(value) {
         this.DataDetailProduct = []
         this.pageDetailProduct = 1
-				if(this.detailProduct) this.prosesDetailProduct(this.pageDetailProduct, value)
+				if(this.detailProduct) this.prosesDetailProduct(this.pageDetailProduct, value, this.searchDataProduct)
 			}
 		},
   },
@@ -1020,23 +1045,27 @@ export default {
       this.getDashboardProduct(qs.stringify(url, { encode: false }))
       .then((res) => {
         const listdata = res.data.result
+        
         this.DataProduct = listdata
         const datapodium = []
         listdata.map((val, i) => {
           if(i<10) datapodium.push(val)
         })
         let hasil = datapodium.map((winner, position) => { return { ...winner, position } })
-        let podium = [10, 8, 6, 4, 2, 0, 1, 3, 5, 7, 9]
+        console.log(hasil);
+        let podium = [8, 6, 4, 2, 0, 1, 3, 5, 7, 9]
         .reduce((podiumOrder, position) => [...podiumOrder, hasil[position]], [])
         .filter(Boolean)
 
         this.recordProduct = podium
       })
 			.catch((err) => {
-				this.notifikasi("error", err.response.message, "1")
+        console.log(err);
+        
+				this.notifikasi("error", err.message, "1")
 			});
     },
-    prosesDetailProduct(page, limit) {
+    prosesDetailProduct(page, limit, keyword) {
       this.pageOptionsDetailProduct = []
       this.DataDetailProduct = []
       let is_package = null
@@ -1045,7 +1074,7 @@ export default {
       }else if(this.judul == '10 Best Seller Product Package') {
         is_package = 1
       }
-      this.getDashboardProduct(qs.stringify({ page, limit, detail: 1, is_package, kategori: 'ALL' }, { encode: false }))
+      this.getDashboardProduct(qs.stringify({ page, limit, detail: 1, is_package, kategori: 'ALL', keyword }, { encode: false }))
       .then((res) => {
         this.isLoadingProses = false
         this.detailProduct = true
@@ -1127,7 +1156,7 @@ export default {
     },
     reloadDashboardUserActive(isMember, bulan) {
       this.isLoadingProses = true
-      this.getDashboardReloadUserActive(qs.stringify({ isMember, detail: '0' }, { encode: false }))
+      this.getDashboardReloadUserActive(qs.stringify({ isMember, detail: '0', bulan }, { encode: false }))
       .then((res) => {
         this.isLoadingProses = false
         this.ProsesDashboardUserActive(isMember == '0' ? 'Customer' : 'Member', bulan)
@@ -1163,9 +1192,9 @@ export default {
       }
       this.ProsesDashboardProduct(this.url)
     },
-    bukaDetailProductDialog(page, limit) {
+    bukaDetailProductDialog(page, limit, keyword) {
       this.isLoadingProses = true
-      this.prosesDetailProduct(page, limit)
+      this.prosesDetailProduct(page, limit, keyword)
     },
     bukaDetailUserDialog(page, limit, kondisi) {
       this.isLoadingProses = true

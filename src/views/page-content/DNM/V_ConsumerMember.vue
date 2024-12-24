@@ -154,6 +154,11 @@
                 icon-prepend-tf="mdi mdi-magnify"
                 label-tf="Pencarian..."
                 :clearable-tf="true"
+                @click:clear="() => {
+                  page = 1
+                  limit = 20
+                  CheckProses(page, limit, tanggal, 1, searchData)
+                }"
               />
             </v-col>
             <v-col cols="12" md="2" class="d-flex align-center justify-end">
@@ -357,13 +362,13 @@ export default {
         total: 0,
         totalPages: 0
       }
-      let startDate, endDate, cari;
+      let startdate, enddate, cari;
 			if(tanggal.length === 2){
-        startDate = this.convertDateToPicker2(tanggal[0])
-        endDate = this.convertDateToPicker2(tanggal[1])
+        startdate = this.convertDateToPicker2(tanggal[0])
+        enddate = this.convertDateToPicker2(tanggal[1])
       }      
       if(keyword) cari = keyword   
-      this.getConsumer(qs.stringify({ last: page, limit, isConsumer, keyword: cari, startDate, endDate }, { encode: false }))
+      this.getConsumer(qs.stringify({ last: page, limit, isConsumer, keyword: cari, startdate, enddate }, { encode: false }))
     },
     detailMember(idMember) {   
       this.getDetailMemberKNET(idMember)

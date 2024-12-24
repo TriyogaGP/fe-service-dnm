@@ -30,6 +30,7 @@ export const GET_WAREHOUSE_STOCKIST = "getWarehouseStockist";
 export const GET_DETAIL_MEMBER_KNET = "getDetailMemberKNET";
 export const HIT_UPDATE_STATUS = "hitUpdateStatus";
 export const CHECK_PAYMENT = "checkPayment";
+export const CHECK_SHIPPING_STATUS = "checkShippingStatus";
 export const HIT_ORDER_MANUAL = "hitOrderManual";
 export const HIT_COD_CONFIRM = "hitCODConfirm";
 
@@ -59,6 +60,7 @@ export const SET_REGIST_MEMBER = "SET_REGIST_MEMBER";
 export const SET_SURVEI_DNM = "SET_SURVEI_DNM";
 export const SET_WAREHOUSE_STOCKIST = "SET_WAREHOUSE_STOCKIST";
 export const SET_DETAIL_MEMBER_KNET = "SET_DETAIL_MEMBER_KNET";
+export const SET_SHIIPING_STATUS = "SET_SHIIPING_STATUS";
 
 const state = {
   loadingtable: false,
@@ -85,6 +87,7 @@ const state = {
   dataSurveiDNM: [],
   dataWarehouseStockist: [],
   dataDetailMemberKNET: [],
+  dataShippingStatus: null,
 }
 
 const mutations = {
@@ -159,6 +162,9 @@ const mutations = {
   },
   [SET_DETAIL_MEMBER_KNET](state, data) {
     state.dataDetailMemberKNET = data
+  },
+  [SET_SHIIPING_STATUS](state, data) {
+    state.dataShippingStatus = data
   },
 }
 
@@ -538,6 +544,18 @@ const actions = {
     return new Promise((resolve, reject) => {
       ApiService.get(`user/check-payment?inv=${orderNumber}`, token)
       .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [CHECK_SHIPPING_STATUS](context, url) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/check-shipping-status?${url}`, token)
+      .then((response) => {
+        context.commit('SET_SHIIPING_STATUS', response.data.result)
         resolve(response);
       })
       .catch((error) => {

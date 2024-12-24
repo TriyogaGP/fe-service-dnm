@@ -108,8 +108,9 @@
                 nama-button="Hit Order Stack Manual"
                 size-button="x-small"
                 :disabled="(!item.raw.payment.some(e => e.paymentMethod === 'VA' || e.paymentMethod === 'ESPAY' || e.paymentMethod === 'MIDTRANS' || e.paymentMethod === 'VAC') || item.raw.orderStatusLatest !== 'WAITING_FOR_PAYMENT')"
-                @proses="hitOrderStackManual(item.raw.orderNumber)"
+                @proses="questionHit('hit order stack', item.raw.orderNumber)"
               />
+                <!-- @proses="hitOrderStackManual(item.raw.orderNumber)" -->
               <Button 
                 color-button="#0bd369"
                 icon-prepend-button="mdi mdi-check"
@@ -124,7 +125,16 @@
                 nama-button="Confirmation COD"
                 size-button="x-small"
                 :disabled="item.raw.shippingType !== 'DELIVERY_COD' || item.raw.orderStatusLatest !== 'WAITING_FOR_COD_CONFIRMATION'"
-                @proses="confirmCOD(item.raw.orderNumber)"
+                @proses="questionHit('confirm cod', item.raw.orderNumber)"
+              />
+                <!-- @proses="confirmCOD(item.raw.orderNumber)" -->
+              <Button
+                v-if="item.raw.shippingType !== 'PICKUP' && !(item.raw.orderStatusLatest === 'CANCELED' || item.raw.orderStatusLatest === 'WAITING_FOR_PAYMENT' || item.raw.orderStatusLatest === 'WAITING_FOR_COD_CONFIRMATION')"
+                color-button="#0bd369"
+                icon-prepend-button="mdi mdi-truck"
+                nama-button="Tracking History"
+                size-button="x-small"
+                @proses="checkTrackingShipping(item.raw)"
               />
             </td>
           </tr>
@@ -391,6 +401,155 @@
       </v-card>
     </v-dialog>
     <v-dialog
+      v-model="DialogTrackingHistory"
+      scrollable
+      persistent
+      transition="dialog-bottom-transition"
+      width="auto"
+    >
+      <v-card color="background-dialog-card">
+        <v-toolbar color="surface">
+          <v-toolbar-title>Tracking History</v-toolbar-title>
+          <v-spacer />
+          <v-toolbar-items>
+            <Button
+              variant="plain"
+              color-button="#ffffff"
+              icon-button="mdi mdi-close"
+              model-button="comfortable"
+              size-button="large"
+              @proses="() => {
+                dataTracking = {
+                  pengirim: '',
+                  alamat_pengirim: '',
+                  penerima: '',
+                  alamat_penerima: '',
+                  awb: '',
+                  ekspedisi: '',
+                  history: [],
+                };
+                DialogTrackingHistory = false; }"
+            />
+          </v-toolbar-items>
+        </v-toolbar>
+        <v-card-text class="pt-4 v-dialogsecond--custom">
+          <v-row no-gutters>
+            <v-col
+              cols="12"
+              md="4"
+              class="pt-2 d-flex align-center font-weight-bold"
+            >
+              Pengirim
+            </v-col>
+            <v-col
+              cols="12"
+              md="8"
+              class="pt-3"
+            >
+              {{ dataTracking.pengirim }}
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col
+              cols="12"
+              md="4"
+              class="pt-2 d-flex align-center font-weight-bold"
+            >
+              Alamat Pengirim
+            </v-col>
+            <v-col
+              cols="12"
+              md="8"
+              class="pt-3"
+            >
+              {{ dataTracking.alamat_pengirim }}
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col
+              cols="12"
+              md="4"
+              class="pt-2 d-flex align-center font-weight-bold"
+            >
+              Penerima
+            </v-col>
+            <v-col
+              cols="12"
+              md="8"
+              class="pt-3"
+            >
+              {{ dataTracking.penerima }}
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col
+              cols="12"
+              md="4"
+              class="pt-2 d-flex align-center font-weight-bold"
+            >
+              Alamat Penerima
+            </v-col>
+            <v-col
+              cols="12"
+              md="8"
+              class="pt-3"
+            >
+              {{ dataTracking.alamat_penerima }}
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col
+              cols="12"
+              md="4"
+              class="pt-2 d-flex align-center font-weight-bold"
+            >
+              Ekspedisi / No Resi
+            </v-col>
+            <v-col
+              cols="12"
+              md="8"
+              class="pt-3"
+            >
+              {{ `${dataTracking.ekspedisi} / ${dataTracking.awb}` }}
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col
+              cols="12"
+              md="12"
+              class="pa-4 d-flex align-center justify-center font-weight-bold"
+            >
+              -- TRACKING HISTORY --
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col
+              cols="12"
+              md="12"
+              class="d-flex align-center font-weight-bold"
+            >
+              <table border="1" cellspacing="0" cellpadding="0" width="100%" style="background-color: #28a154; border: #FFF;">
+                <tr class="table-header">
+                  <td>Tanggal</td>
+                  <td>Status</td>
+                  <td>Status Code</td>
+                </tr>
+                <template v-if="dataTracking.history.length">
+                  <tr style="font-size: 9pt; font-weight: bold; color: white; padding: 10px" v-for="(data, index) in dataTracking.history" :key="index">
+                    <td style="text-align: center; width: 20%;">{{ convertDateTime(data.track_date) }}</td>
+                    <td style="padding-left: 10px;">{{ data.status }}</td>
+                    <td style="text-align: center; width: 25%;">{{ data.status_code }}</td>
+                  </tr>
+                </template>
+              </table>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-divider :thickness="2" class="border-opacity-100" color="black" />
+        <v-card-actions />
+      </v-card>
+    </v-dialog>
+    <v-dialog
       v-model="dialogNotifikasi"
       transition="dialog-bottom-transition"
       persistent
@@ -400,6 +559,7 @@
         :notifikasi-kode="notifikasiKode"
         :notifikasi-text="notifikasiText"
         :notifikasi-button="notifikasiButton"
+        @proses="kategoriHit == '1' ? hitOrderStackManual(orderNumber) : confirmCOD(orderNumber)"
         @cancel="dialogNotifikasi = false"
       />
     </v-dialog>
@@ -478,8 +638,20 @@ export default {
       remarks: '',
     },
     DialogOrder: false,
+    DialogTrackingHistory: false,
     isLoadingProses: false,
     isTombol: true,
+    dataTracking: {
+      pengirim: '',
+      alamat_pengirim: '',
+      penerima: '',
+      alamat_penerima: '',
+      awb: '',
+      ekspedisi: '',
+      history: [],
+    },
+    kategoriHit: '',
+    orderNumber: '',
 
     //notifikasi
     dialogNotifikasi: false,
@@ -556,9 +728,18 @@ export default {
     ...mapActions({
       getOrder: 'user/getOrder',
       checkPayment: 'user/checkPayment',
+      checkShippingStatus: 'user/checkShippingStatus',
       hitOrderManual: 'user/hitOrderManual',
+      hitCODConfirm: 'user/hitCODConfirm',
     }),
     prosesData(page, limit, inv, status) {
+      this.DataOrder = []
+      this.pageSummary = {
+        page: '',
+        limit: '',
+        total: '',
+        totalPages: ''
+      }
       this.getOrder(qs.stringify({ page, limit, inv, status }, { encode: false }));
     },
     postRecord() {
@@ -605,9 +786,30 @@ export default {
         setTimeout(() => {
           const { status, message } = res.data.result
           this.isLoadingProses = false
+          // this.prosesData(this.page, this.limit, this.invoice, this.statusOrder);
           let pesan = `Invoice ${orderNumber} ${status.payment_notification === "False" ? 'Belum dibayar': 'Sudah dibayar'} & ${message}`
           this.notifikasi("success", pesan, "1")
         }, 5000);
+			})
+			.catch((err) => {
+        this.isLoadingProses = false
+				this.notifikasi("error", err.response.data.message, "1")
+			});
+		},
+    checkTrackingShipping(item){
+			this.checkShippingStatus(qs.stringify({ no_resi: item.shippingReceiptNumber, ekspedisi: item.carrierName }, { encode: false }))
+			.then((res) => {
+        this.DialogTrackingHistory = true
+        const listData = res.data.result
+        this.dataTracking = {
+          pengirim: listData.pengirim ? listData.pengirim : '-',
+          alamat_pengirim: listData.alamat_pengirim ? listData.alamat_pengirim : '-',
+          penerima: listData.penerima ? listData.penerima : '-',
+          alamat_penerima: listData.alamat_penerima ? listData.alamat_penerima : '-',
+          awb: listData.awb ? listData.awb : '-',
+          ekspedisi: listData.ekspedisi ? listData.ekspedisi : '-',
+          history: listData.history ? listData.history : [],
+        }
 			})
 			.catch((err) => {
 				this.notifikasi("error", err.response.data.message, "1")
@@ -619,11 +821,13 @@ export default {
 			.then((res) => {
         setTimeout(() => {
           this.isLoadingProses = false
+          this.prosesData(this.page, this.limit, this.invoice, this.statusOrder);
           this.notifikasi("success", res.data.message, "1")
         }, 5000);
 			})
 			.catch((err) => {
-				this.notifikasi("error", err.response.data.message, "1")
+        this.isLoadingProses = false
+        this.notifikasi("error", err.response.data.message, "1")
 			});
     },
     panelconfirmCOD(orderNumber){
@@ -638,11 +842,13 @@ export default {
 			.then((res) => {
         setTimeout(() => {
           this.isLoadingProses = false
+          this.prosesData(this.page, this.limit, this.invoice, this.statusOrder);
           this.notifikasi("success", res.data.message, "1")
         }, 5000);
 			})
 			.catch((err) => {
-				this.notifikasi("error", err.response.data.message, "1")
+        this.isLoadingProses = false
+        this.notifikasi("error", err.response.data.message, "1")
 			});
     },
     clearData(){
@@ -651,6 +857,16 @@ export default {
         orderNumber: '',
         status: '',
         remarks: '',
+      }
+    },
+    questionHit(kategori, orderNumber) {
+      this.orderNumber = orderNumber
+      if(kategori == 'hit order stack'){ 
+        this.kategoriHit = '1'
+        this.notifikasi("question2", "Apakah anda yakin ingin memproses ini ?", "2")
+      }else if(kategori == 'confirm cod'){ 
+        this.kategoriHit = '2'
+        this.notifikasi("question2", "Apakah anda yakin ingin memproses ini ?", "2")
       }
     },
     copyText(text, nomeklatur) {

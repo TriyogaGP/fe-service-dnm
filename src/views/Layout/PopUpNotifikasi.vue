@@ -40,7 +40,7 @@
           <Button 
             v-if="kode == 'question'"
             class="elevation-0 tombol-question white--text"
-            color-button="#3c00ff"
+            color-button="#2C3A4B"
             nama-button="Keluar"
             @proses="tombolProses(notifikasiButton)"
           />
@@ -54,7 +54,7 @@
           <Button 
             v-if="kode == 'question2'"
             class="elevation-0 tombol-question white--text"
-            color-button="#3c00ff"
+            color-button="#2C3A4B"
             nama-button="Yakin"
             @proses="tombolProses(notifikasiButton)"
           />
@@ -74,7 +74,7 @@
           <Button 
             v-if="kode == 'questionProses'"
             class="elevation-0 tombol-question white--text"
-            color-button="#3c00ff"
+            color-button="#2C3A4B"
             nama-button="Lanjut"
             @proses="tombolProses(notifikasiButton)"
           />
@@ -98,7 +98,6 @@
     <div v-if="kode == 'success'" class="backgroundhijau" />
     <div v-else-if="kode == 'error'" class="backgroundmerah" />
     <div v-else-if="kode == 'warning'" class="backgroundkuning" />
-    <div v-else-if="kode == 'question'" class="backgroundabu" />
   </v-card>
 </template>
 
@@ -169,10 +168,6 @@ export default {
 }
 .backgroundkuning{
   background-color: #f0ad4e;
-  height: 12px;
-}
-.backgroundabu{
-  background-color: #ff6200;
   height: 12px;
 }
 .tombol-tutup{

@@ -216,15 +216,35 @@
                 md="8"
                 class="pt-3"
               >
-                <Autocomplete
-                  v-model="inputData.shippingType"
-                  :data-a="shippingOptions"
-                  label-a="Shipping Type"
-                  multiple
-                  chips
-                  closable-chips
-                  :clearable-a="true"
-                />
+                <v-row no-gutters>
+                  <v-col
+                    cols="12"
+                    md="2"
+                    class="d-flex align-center"
+                  >
+                    <v-checkbox
+                      v-model="allShipping"
+                      label="Pilih Semua"
+                      value="Pilih Semua"
+                      hide-details
+                      density="comfortable"
+                    />
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    md="10"
+                  >
+                    <Autocomplete
+                      v-model="inputData.shippingType"
+                      :data-a="shippingOptions"
+                      label-a="Shipping Type"
+                      multiple
+                      chips
+                      closable-chips
+                      :clearable-a="true"
+                    />
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
             <v-row no-gutters>
@@ -240,15 +260,35 @@
                 md="8"
                 class="pt-3"
               >
-                <Autocomplete
-                  v-model="inputData.statusFinal"
-                  :data-a="statusOptions"
-                  label-a="Status Final"
-                  multiple
-                  chips
-                  closable-chips
-                  :clearable-a="true"
-                />
+                <v-row no-gutters>
+                  <v-col
+                    cols="12"
+                    md="2"
+                    class="d-flex align-center"
+                  >
+                    <v-checkbox
+                      v-model="allStatus"
+                      label="Pilih Semua"
+                      value="Pilih Semua"
+                      hide-details
+                      density="comfortable"
+                    />
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    md="10"
+                  >
+                    <Autocomplete
+                      v-model="inputData.statusFinal"
+                      :data-a="statusOptions"
+                      label-a="Status Final"
+                      multiple
+                      chips
+                      closable-chips
+                      :clearable-a="true"
+                    />
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
             <v-row no-gutters>
@@ -328,6 +368,8 @@ export default {
       grandTotal: '0',
       totalQty: '0'
     },
+    allShipping: '',
+    allStatus: '',
 		headersPackage: [
       { title: "ID Product", key: "idProductSync", sortable: false },
       { title: "Product Name", key: "productName", sortable: false },
@@ -399,13 +441,36 @@ export default {
     jenis: {
 			deep: true,
 			handler(value, oldValue){
-        if(value !== oldValue) { this.inputData.idProductSync = '' }
+        if(value !== oldValue) {
+          this.inputData.idProductSync = '';
+          this.DataOrderSummarybyProduct = [];
+        }
 			}
 		},
     tanggal: {
 			deep: true,
 			handler(value) {
         if(value === null) this.tanggal = []
+			}
+		},
+    allShipping: {
+			deep: true,
+			handler(value) {
+        if(value === 'Pilih Semua') {
+          this.inputData.shippingType.push('DELIVERY_COD','DELIVERY_NON_COD','DELIVERY_NON_COD_SAMEDAY','PICKUP')
+        }else{
+          this.inputData.shippingType = []
+        }
+			}
+		},
+    allStatus: {
+			deep: true,
+			handler(value) {
+        if(value === 'Pilih Semua') {
+          this.inputData.statusFinal.push('PROCESSING','IN_SHIPPING','ARRIVED_AT_DESTINATION','ARRIVED_AT_DESTINATION_PICKUP','DONE','REVIEWED')
+        }else{
+          this.inputData.statusFinal = []
+        }
 			}
 		},
   },
@@ -443,6 +508,7 @@ export default {
       }
       this.$store.dispatch('user/getOrderSummarybyProduct', bodyData)
       .then((res) => {
+        if(res.data.result == 'errorSINGLE' || res.data.result == 'errorPACKAGE') return this.notifikasi("warning", res.data.message, "1")
         const { listData, grandTotal, totalQty } = res.data.result
         this.DataOrderSummarybyProduct = listData
         this.detailSummary = {grandTotal, totalQty}
@@ -451,7 +517,8 @@ export default {
             idProductSync: val.idProductSync,
             productName: val.productName,
             quantity: val.quantity,
-            totalPrice:`Rp.${val.totalPrice !== 0 ? this.currencyDotFormatNumber(val.totalPrice/1) : '0'}`,
+            // totalPrice: `Rp.${val.totalPrice !== 0 ? this.currencyDotFormatNumber(val.totalPrice/1) : '0'}`,
+            totalPrice: `${val.totalPrice !== 0 ? val.totalPrice/1 : 0}`,
           })
         })
 			})

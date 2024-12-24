@@ -150,15 +150,35 @@
                 md="8"
                 class="pt-3"
               >
-                <Autocomplete
-                  v-model="inputData.shippingType"
-                  :data-a="shippingOptions"
-                  label-a="Shipping Type"
-                  multiple
-                  chips
-                  closable-chips
-                  :clearable-a="true"
-                />
+                <v-row no-gutters>
+                  <v-col
+                    cols="12"
+                    md="2"
+                    class="d-flex align-center"
+                  >
+                    <v-checkbox
+                      v-model="allShipping"
+                      label="Pilih Semua"
+                      value="Pilih Semua"
+                      hide-details
+                      density="comfortable"
+                    />
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    md="10"
+                  >
+                    <Autocomplete
+                      v-model="inputData.shippingType"
+                      :data-a="shippingOptions"
+                      label-a="Shipping Type"
+                      multiple
+                      chips
+                      closable-chips
+                      :clearable-a="true"
+                    />
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
             <v-row no-gutters>
@@ -174,15 +194,35 @@
                 md="8"
                 class="pt-3"
               >
-                <Autocomplete
-                  v-model="inputData.statusFinal"
-                  :data-a="statusOptions"
-                  label-a="Status Final"
-                  multiple
-                  chips
-                  closable-chips
-                  :clearable-a="true"
-                />
+                <v-row no-gutters>
+                  <v-col
+                    cols="12"
+                    md="2"
+                    class="d-flex align-center"
+                  >
+                    <v-checkbox
+                      v-model="allStatus"
+                      label="Pilih Semua"
+                      value="Pilih Semua"
+                      hide-details
+                      density="comfortable"
+                    />
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    md="10"
+                  >
+                    <Autocomplete
+                      v-model="inputData.statusFinal"
+                      :data-a="statusOptions"
+                      label-a="Status Final"
+                      multiple
+                      chips
+                      closable-chips
+                      :clearable-a="true"
+                    />
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
             <v-row no-gutters>
@@ -351,6 +391,8 @@ export default {
 		DataOrderbyProduct: [],
 		DataExport: [],
 		DataDetailOrder: [],
+    allShipping: '',
+    allStatus: '',
 		headers: [
       { title: "No", key: "number", sortable: false, width: "5%" },
       { title: "#", key: "data-table-expand", sortable: false, width: "3%" },
@@ -414,6 +456,26 @@ export default {
 			deep: true,
 			handler(value) {
         if(value === null) this.tanggal = []
+			}
+		},
+    allShipping: {
+			deep: true,
+			handler(value) {
+        if(value === 'Pilih Semua') {
+          this.inputData.shippingType.push('DELIVERY_COD','DELIVERY_NON_COD','DELIVERY_NON_COD_SAMEDAY','PICKUP')
+        }else{
+          this.inputData.shippingType = []
+        }
+			}
+		},
+    allStatus: {
+			deep: true,
+			handler(value) {
+        if(value === 'Pilih Semua') {
+          this.inputData.statusFinal.push('PROCESSING','IN_SHIPPING','ARRIVED_AT_DESTINATION','ARRIVED_AT_DESTINATION_PICKUP','DONE','REVIEWED')
+        }else{
+          this.inputData.statusFinal = []
+        }
 			}
 		},
   },
