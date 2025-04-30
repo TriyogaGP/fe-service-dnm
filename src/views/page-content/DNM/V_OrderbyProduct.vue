@@ -15,7 +15,8 @@
         hide-default-footer
         hide-default-header
         class="elavation-3 rounded"
-        items-per-page="1000"
+        :items-per-page="itemsPerPage"
+        @page-count="pageCount = $event"
         @click:row="clickrow"
         v-model:expanded="expanded"
       >
@@ -33,7 +34,7 @@
           <LoaderDataTables />
         </template>
         <template #[`item.number`]="{ item }">
-          {{ DataOrderbyProduct.indexOf(item.raw) + 1 }}
+          {{ page > 1 ? ((page - 1)*limit) + item.index + 1 : item.index + 1 }}
         </template>
         <template #[`item.idUser`]="{ item }">
           <input type="hidden" id="testing-code-on" :value="item.raw.idUser">
@@ -64,6 +65,51 @@
           </tr>
         </template>
         <template #bottom>
+          <v-divider :thickness="2" class="border-opacity-100" color="white" />
+          <v-row no-gutters>
+            <v-col cols="12" lg="10" class="pa-2 d-flex justify-start align-center">
+              <!-- <span>Halaman <strong>{{ pageSummary.page ? pageSummary.page : 0 }}</strong> dari Total Halaman <strong>{{ pageSummary.totalPages ? pageSummary.totalPages : 0 }}</strong> (Records {{ pageSummary.total ? pageSummary.total : 0 }})</span> -->
+              <span>Halaman&nbsp;</span>
+              <div style="width: 100px;">
+                <Autocomplete
+                  v-model="page"
+                  :data-a="pageOptions"
+                  label-a="Page"
+                  :disabled-a="DataOrderbyProduct.length ? false : true"
+                />
+              </div>
+              <span>&nbsp;dari Total Halaman <strong>{{ pageSummary.totalPages ? pageSummary.totalPages : 0 }}</strong> (Records {{ pageSummary.total ? pageSummary.total : 0 }})</span>
+            </v-col>
+            <v-col cols="12" lg="2" class="pa-2 text-right">
+              <div class="d-flex justify-start align-center">
+                <Autocomplete
+                  v-model="limit"
+                  pilihan-a="select"
+                  :data-a="limitPage"
+                  label-a="Limit"
+                  :disabled-a="DataOrderbyProduct.length ? false : true"
+                />
+                <Button
+                  variant="plain"
+                  size-button="large"
+                  model-button="comfortable"
+                  color-button="#ffffff"
+                  icon-button="mdi mdi-arrow-left-circle-outline"
+                  :disabled-button="DataOrderbyProduct.length ? pageSummary.page != 1 ? false : true : true"
+                  @proses="() => { page = pageSummary.page - 1 }"
+                />
+                <Button
+                  variant="plain"
+                  size-button="large"
+                  model-button="comfortable"
+                  color-button="#ffffff"
+                  icon-button="mdi mdi-arrow-right-circle-outline"
+                  :disabled-button="DataOrderbyProduct.length ? pageSummary.page != pageSummary.totalPages ? false : true : true"
+                  @proses="() => { page = pageSummary.page + 1 }"
+                />
+              </div>
+            </v-col>
+          </v-row>
         </template>
         <template #top>
           <v-card class="mb-0 pa-2" outlined elevation="0">
@@ -237,7 +283,7 @@
                   icon-prepend-button="mdi mdi-send-check"
                   nama-button="Check"
                   size-button="small"
-                  @proses="CheckProses()"
+                  @proses="CheckProses(page, limit)"
                 />
               </v-col>
             </v-row>
@@ -393,6 +439,18 @@ export default {
 		DataDetailOrder: [],
     allShipping: '',
     allStatus: '',
+    page: 1,
+    pageCount: 0,
+    itemsPerPage: 100,
+    limit: 20,
+		limitPage: [5,10,20,50,100],
+    pageOptions: [],
+		pageSummary: {
+			page: '',
+			limit: '',
+			total: '',
+			totalPages: ''
+		},
 		headers: [
       { title: "No", key: "number", sortable: false, width: "5%" },
       { title: "#", key: "data-table-expand", sortable: false, width: "3%" },
@@ -458,6 +516,21 @@ export default {
         if(value === null) this.tanggal = []
 			}
 		},
+    page: {
+			deep: true,
+			handler(value) {
+        this.DataOrderbyProduct = []
+        this.CheckProses(value, this.limit)
+			}
+		},
+    limit: {
+			deep: true,
+			handler(value) {
+        this.DataOrderbyProduct = []
+        this.page = 1
+				this.CheckProses(1, value)
+			}
+		},
     allShipping: {
 			deep: true,
 			handler(value) {
@@ -483,12 +556,19 @@ export default {
     if(!localStorage.getItem('user_token')) return this.$router.push({name: 'LogIn'});
 	},
 	methods: {
-    CheckProses() {
+    CheckProses(page, limit) {
       if(!this.inputData.idProductSync || !this.inputData.shippingType.length) {
 				return this.notifikasi("warning", 'Parameter kosong !', "1")
 			}
       this.DataOrderbyProduct = [];
       this.DataExport = [];
+      this.pageOptions = [];
+      this.pageSummary = {
+        page: '',
+        limit: '',
+        total: '',
+        totalPages: ''
+      }
       let payment, shipping, status, startdate, enddate, idProductSync;
       idProductSync = this.inputData.idProductSync.split(';')
       if(this.inputData.payment){ payment = `${this.inputData.payment}` }
@@ -504,21 +584,31 @@ export default {
           idProductSync: idProductSync
         },
         get: {
-          url: qs.stringify({ payment, shippingType: shipping, statusfinal: status, startdate, enddate }, { encode: false })
+          url: qs.stringify({ page, limit, payment, shippingType: shipping, statusfinal: status, startdate, enddate }, { encode: false })
         }
       }
       this.$store.dispatch('user/getOrderbyProduct', bodyData)
       .then((res) => {
-        const listData = res.data.result
-        this.DataOrderbyProduct = listData
-        listData.map((val, i) => {
+        const { records, pageSummary } = res.data.result
+
+        this.DataOrderbyProduct = records
+				this.pageSummary = {
+					page: this.DataOrderbyProduct.length ? pageSummary.page : 0,
+					limit: this.DataOrderbyProduct.length ? pageSummary.limit : 0,
+					total: this.DataOrderbyProduct.length ? pageSummary.total : 0,
+					totalPages: this.DataOrderbyProduct.length ? pageSummary.totalPages : 0
+				}
+        for (let index = 1; index <= this.pageSummary.totalPages; index++) {
+          this.pageOptions.push(index)
+        }
+
+        records.map((val, i) => {
           if(i < 10) this.DataExport.push({
             idMember: val.idMember,
             namaMember: val.namaMember,
             totalPrice: `Rp.${this.currencyDotFormatNumber(val.totalPrice/1)}`,
           })
         })
-        
 			})
 			.catch((err) => {
         this.notifikasi("error", err.response.data.message, "1")

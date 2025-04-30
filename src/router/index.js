@@ -114,6 +114,22 @@ const routes = [
         name: 'DataWarehouseStockist',
         component: () => import('@/views/page-content/DNM/V_WarehouseStockist.vue')
       },
+
+      {
+        path: '/data-sales-area',
+        name: 'DataSalesArea',
+        component: () => import('@/views/page-content/KNET/V_SalesArea.vue')
+      },
+      {
+        path: '/data-transaksi-detail',
+        name: 'DataTransaksiDetail',
+        component: () => import('@/views/page-content/KNET/V_TransaksiDetail.vue')
+      },
+      {
+        path: '/data-transaksi-summary',
+        name: 'DataTransaksiSummary',
+        component: () => import('@/views/page-content/KNET/V_TransaksiSummary.vue')
+      },
       
       {
         path: '/:pathMatch(.*)*',

@@ -39,16 +39,21 @@
         <template #[`item.orderNumber`]="{ item }">
           <input type="hidden" id="testing-code-on" :value="item.raw.orderNumber">
           <span ref="myinputon" v-html="item.raw.orderNumber" /> <v-icon v-if="item.raw.orderNumber" @click.stop.prevent="copyText(item.raw.orderNumber, 'Invoice')" size="small" icon="mdi mdi-content-copy" color="#28a154" />
-        </template>
-        <template #[`item.createdAt`]="{ item }">
-          <span v-html="convertDateTime(item.raw.createdAt)" /> 
+          <br><span v-html="convertDateTime(item.raw.createdAt)" /> 
         </template>
         <template #[`item.receipt`]="{ item }">
           <span v-html="item.raw.rcptName" /><br> 
           <span v-html="item.raw.rcptPhno" /> 
         </template>
         <template #[`item.total`]="{ item }">
-          Rp.<span v-html="currencyDotFormatNumber(item.raw.totalPricePlain/1)" />
+          <v-chip
+            border="#28a154"
+            color="#28a154"
+            :text="`Rp.${currencyDotFormatNumber(item.raw.totalPricePlain/1)}`"
+            size="small"
+            density="comfortable"
+          />
+          <!-- Rp.<span v-html="currencyDotFormatNumber(item.raw.totalPricePlain/1)" /> -->
         </template>
         <template #[`item.user`]="{ item }">
           <v-tooltip bottom>
@@ -75,14 +80,33 @@
             </div>
           </v-tooltip>
         </template>
+        <template #[`item.paymentStatusFinal`]="{ item }">
+          <span>{{ `${item.raw.paymentStatusFinal} -> ${item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentMethod}` }}</span>
+          <span v-if="item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentMethod == 'VA'">
+            <br>{{ item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentAccountNo }} <v-icon @click.stop.prevent="copyText(item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentAccountNo, 'No VA')" size="small" icon="mdi mdi-content-copy" color="#28a154" />
+            <br>{{ item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentProvider }}
+          </span>
+          <span v-else-if="item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentMethod == 'ESPAY'">
+            <v-icon @click.stop.prevent="panellinkEspay(item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentRedirectUrl)" size="small" icon="mdi mdi-link-variant" color="#28a154" />
+            <br>{{ item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentProvider }}
+          </span>
+        </template>
         <template #[`item.shippingType`]="{ item }">
           <v-tooltip v-if="item.raw.shippingType == 'PICKUP'" location="bottom">
             <template v-slot:activator="{ props }">
-              <span v-html="item.raw.shippingType" /> <v-icon v-bind="props" size="x-large" icon="mdi mdi-information" color="#28a154" />
+              <span v-html="item.raw.shippingType" /> <v-icon v-bind="props" size="x-large" icon="mdi mdi-information" color="#28a154" /><br>
+              {{ `${item.raw.stockistorwh.fullname} (${item.raw.stockistorwh.locationCode})` }} <v-icon v-if="item.raw.stockistorwh.locationCode" @click.stop.prevent="copyText(item.raw.stockistorwh.locationCode, 'WH Or Stockist')" size="small" icon="mdi mdi-content-copy" color="#28a154" />
             </template>
-            Code Pickup : <span v-html="item.raw.codePickup" />
+            Code Pickup : <span v-html="item.raw.codePickup ? item.raw.codePickup : '-'" />
           </v-tooltip>
-          <span v-else v-html="item.raw.shippingType" />
+          <span v-else>
+            {{ item.raw.shippingType.replaceAll('_', ' ') }}<br>
+            {{ `${item.raw.shippingReceiptNumber ? item.raw.shippingReceiptNumber : '-'}` }} <v-icon v-if="item.raw.shippingReceiptNumber" @click.stop.prevent="copyText(item.raw.shippingReceiptNumber, 'Conote')" size="small" icon="mdi mdi-content-copy" color="#28a154" /><br>
+            {{ `${item.raw.stockistorwh.fullname} (${item.raw.stockistorwh.locationCode})` }} <v-icon v-if="item.raw.stockistorwh.locationCode" @click.stop.prevent="copyText(item.raw.stockistorwh.locationCode, 'WH Or Stockist')" size="small" icon="mdi mdi-content-copy" color="#28a154" />
+          </span>
+        </template>
+        <template #[`item.orderStatusLatest`]="{ item }">
+          {{ item.raw.orderStatusLatest.replaceAll('_', ' ') }}
         </template>
         <template #expanded-row="{ columns, item }">
           <tr>
@@ -219,6 +243,8 @@
                   size-button="small"
                   :disabled-button="isTombol"
                   @proses="() => {
+                    page = 1;
+                    limit = 20;
                     isTombol = true;
                     DataOrder = [];
                     pageSummary = {
@@ -604,15 +630,15 @@ export default {
 		headers: [
       { title: "NO", key: "number", sortable: false, width: "5%" },
       { title: "#", key: "data-table-expand", sortable: false, width: "3%" },
-      { title: "INVOICE", key: "orderNumber", sortable: false, width: "13%" },
-      { title: "TANGGAL ORDER", key: "createdAt", sortable: false },
+      { title: "INVOICE", key: "orderNumber", sortable: false, width: "15%" },
+      // { title: "TANGGAL ORDER", key: "createdAt", sortable: false, width: "10%" },
       { title: "PENERIMA", key: "receipt", sortable: false },
       { title: "TOTAL HARGA", key: "total", sortable: false },
-      { title: "DATA USER", key: "user", sortable: false, width: "5%" },
-      { title: "DATA PRODUCT", key: "product", sortable: false, width: "5%" },
-      { title: "STATUS PEMBAYARAN", key: "paymentStatusFinal", sortable: false, width: "7%" },
-      { title: "TIPE ORDER", key: "shippingType", sortable: false },
-      { title: "STATUS ORDER", key: "orderStatusLatest", sortable: false },
+      { title: "DATA USER", key: "user", sortable: false, width: "3%" },
+      { title: "DATA PRODUCT", key: "product", sortable: false, width: "3%" },
+      { title: "STATUS PEMBAYARAN", key: "paymentStatusFinal", sortable: false, width: "12%" },
+      { title: "TIPE ORDER", key: "shippingType", sortable: false, width: "18%" },
+      { title: "STATUS ORDER", key: "orderStatusLatest", sortable: false, width: "18%" },
     ],
     statusOrder: 'ALL',
     invoice: '',
@@ -851,6 +877,12 @@ export default {
         this.notifikasi("error", err.response.data.message, "1")
 			});
     },
+    panellinkEspay(link){
+			window.open(
+        link,
+        '_blank'
+      );
+		},
     clearData(){
       this.previewData = {
         idOrder: '',

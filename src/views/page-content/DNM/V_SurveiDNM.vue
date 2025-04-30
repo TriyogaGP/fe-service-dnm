@@ -364,7 +364,7 @@ export default {
   }),
   setup() {
     useMeta({
-      title: "Data Order",
+      title: "Data Survei DNM",
       htmlAttrs: {
         lang: "id",
         amp: true,

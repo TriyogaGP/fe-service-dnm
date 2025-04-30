@@ -602,6 +602,44 @@
         @cancel="dialogNotifikasi = false"
       />
     </v-dialog>
+
+    <!-- <div class="number-box" id="number">0</div>
+    <div class="wadah">
+      <div class="dashboard">
+        <div class="card" id="number1">_</div>
+        <div class="card" id="number2">_</div>
+        <div class="card" id="number3">_</div>
+        <div class="card" id="number4">_</div>
+        <div class="card" id="number5">_</div>
+        <div class="card" id="number6">_</div>
+        <div class="card" id="number7">_</div>
+        <div class="card" id="number8">_</div>
+        <div class="card" id="number9">_</div>
+        <div class="card" id="number10">_</div>
+      </div>
+    </div>
+    <Button 
+      color-button="#0bd369"
+      icon-prepend-button="mdi mdi-send-check"
+      nama-button="Check"
+      size-button="small"
+      @proses="() => {
+        startShuffle1();
+        startShuffle2();
+      }"
+    /> -->
+    
+    <!-- <Button 
+      color-button="#0bd369"
+      icon-prepend-button="mdi mdi-reload"
+      nama-button="Ulangi"
+      size-button="small"
+      @proses="() => {
+        interval = 0;
+        intervals = [];
+        clearData();
+      }"
+    /> -->
   </div>
 </template>
 
@@ -771,6 +809,10 @@ export default {
 			total: '',
 			totalPages: ''
 		},
+    interval: 0,
+    intervals: [],
+    stringArray: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    stringArrayLetters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     
     //notifikasi
     dialogNotifikasi: false,
@@ -899,7 +941,7 @@ export default {
         })
       })
 			.catch((err) => {
-				this.notifikasi("error", err.response.message, "1")
+				this.notifikasi("error", err.response.data.message, "1")
 			});
     },
     ProsesDashboardTransaksiDaily(tahun, bulan, pilihan) {
@@ -939,7 +981,7 @@ export default {
         }
       })
 			.catch((err) => {
-				this.notifikasi("error", err.response.message, "1")
+				this.notifikasi("error", err.response.data.message, "1")
 			});
     },
     ProsesDashboardShipping() {
@@ -966,7 +1008,7 @@ export default {
         ]
       })
 			.catch((err) => {
-				this.notifikasi("error", err.response.message, "1")
+				this.notifikasi("error", err.response.data.message, "1")
 			});
     },
     ProsesDashboardCourier() {
@@ -992,7 +1034,7 @@ export default {
         ]
       })
 			.catch((err) => {
-				this.notifikasi("error", err.response.message, "1")
+				this.notifikasi("error", err.response.data.message, "1")
 			});
     },
     ProsesDashboardUserActive(userType, bulan) {
@@ -1036,7 +1078,7 @@ export default {
         }
       })
 			.catch((err) => {
-				this.notifikasi("error", err.response.message, "1")
+				this.notifikasi("error", err.response.data.message, "1")
 			});
     },
     ProsesDashboardProduct(url) {
@@ -1052,7 +1094,6 @@ export default {
           if(i<10) datapodium.push(val)
         })
         let hasil = datapodium.map((winner, position) => { return { ...winner, position } })
-        console.log(hasil);
         let podium = [8, 6, 4, 2, 0, 1, 3, 5, 7, 9]
         .reduce((podiumOrder, position) => [...podiumOrder, hasil[position]], [])
         .filter(Boolean)
@@ -1060,8 +1101,6 @@ export default {
         this.recordProduct = podium
       })
 			.catch((err) => {
-        console.log(err);
-        
 				this.notifikasi("error", err.message, "1")
 			});
     },
@@ -1220,6 +1259,63 @@ export default {
       this.notifikasiText = text
       this.notifikasiButton = proses
     },
+
+    startShuffle1() {
+      clearInterval(this.interval);
+      let count = 0;
+      this.interval = setInterval(() => {
+        document.getElementById("number").innerText = Math.floor(Math.random() * 99) + 1;
+        count++;
+        if (count > 29) {
+          clearInterval(this.interval);
+        }
+      }, 50);
+    },
+    startShuffle2() {
+      this.clearIntervals();
+      this.shuffleNumber("number1", 1000);
+      this.shuffleNumber("number2", 2000);
+      this.shuffleNumber("number3", 3000);
+      this.shuffleNumber("number4", 4000);
+      this.shuffleNumber("number5", 5000);
+      // this.shuffleNumber("number6", 6000);
+      // this.shuffleNumber("number7", 7000);
+      // this.shuffleNumber("number8", 8000);
+      // this.shuffleNumber("number9", 9000);
+      // this.shuffleNumber("number10", 10000);
+    },
+    shuffleNumber(elementId, duration) {
+      let count = 0;
+      let interval = setInterval(() => {
+        if(elementId == 'number1' || elementId == 'number2') {
+          document.getElementById(elementId).innerText = this.stringArrayLetters[Math.floor(Math.random() * this.stringArrayLetters.length)]; //untuk random angka dan huruf (jika ingin huruf saja variable stringArray di ubah huruf semua)
+        } else {
+          document.getElementById(elementId).innerText = Math.floor(Math.random() * 9) + 1; //untuk random angka saja
+        }
+        count++;
+        if (count > duration / 500) {
+          clearInterval(interval);
+        }
+      }, 100); 
+      this.intervals.push(interval);
+    },
+    clearIntervals() {
+      this.intervals.forEach(clearInterval);
+      this.intervals = [];
+    },
+    clearData() {
+      document.getElementById("number").innerText = '0'
+      document.getElementById("number1").innerText = '_'
+      document.getElementById("number2").innerText = '_'
+      document.getElementById("number3").innerText = '_'
+      document.getElementById("number4").innerText = '_'
+      document.getElementById("number5").innerText = '_'
+      // document.getElementById("number6").innerText = '_'
+      // document.getElementById("number7").innerText = '_'
+      // document.getElementById("number8").innerText = '_'
+      // document.getElementById("number9").innerText = '_'
+      // document.getElementById("number10").innerText = '_'
+    }
   }
 }
 </script>
@@ -1276,5 +1372,37 @@ export default {
 	border-style: solid !important;
 	border-radius: 10px !important;
 	padding: 2px !important;
+}
+
+.number-box {
+  font-size: 25pt;
+  font-weight: bold;
+  border: 3px solid black;
+  display: flex;
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+  border-radius: 20px;
+  background-color: lightyellow;
+  flex-direction: column;
+  align-items: center;
+}
+.wadah {
+  width: 450px;
+}
+.dashboard {
+  background-color: white;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  border: 3px solid black;
+  padding: 20px;
+  text-align: center;
+  background-color: lightyellow;
+}
+.card {
+  font-size: 25pt;
+  font-weight: bold;
+  padding: 5px;
+  display: inline-block;
 }
 </style>

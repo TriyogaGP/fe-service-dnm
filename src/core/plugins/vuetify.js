@@ -29,9 +29,10 @@ const myCustomLightTheme = {
     warning: '#FB8C00',
     'icon-white': '#FFFFFF',
     'icon-black': '#000000',
-    'icon-red': '#000',
+    'icon-red': '#F00',
     'nav-back': '#a9a9d9',
     'background-dialog-card': '#e1e1f0',
+    'border-kanan-ijo': '#28a154',
   },
 }
 

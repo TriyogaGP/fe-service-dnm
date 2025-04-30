@@ -14,7 +14,6 @@ import PrimeVue from 'primevue/config';
 import "primevue/resources/themes/lara-light-blue/theme.css";
 import "primevue/resources/primevue.min.css"; /* Deprecated */
 import Tailwind from 'primevue/passthrough/tailwind';
-import { SvgMap } from "vue-svg-map";
 import VueSignaturePad from 'vue-signature-pad';
 // import OrganizationChart from 'vue-organization-chart'
 import {
@@ -64,7 +63,6 @@ app.use(router)
 app.component('Footer', Footer);
 
 // app.component('OrganizationChart', OrganizationChart);
-app.component('svg-map', SvgMap);
 app.component('vue-date-picker', VueDatePicker);
 app.component('Button', VButton);
 app.component('TextField', VTextField);

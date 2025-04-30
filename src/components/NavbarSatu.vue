@@ -278,7 +278,8 @@ export default {
 		let path = this.$route.path.substring(1).split('/');
 		if(path[0] === 'dashboard' || path[0] === 'settings' || path[0] === 'profile' || path[0] === 'notifikasi' || path[0] === 'data-all-order' || 
 			path[0] === 'data-order-smr-byproduct' || path[0] === 'data-product-variant' || path[0] === 'data-reg-in-apps' || path[0] === 'data-member' ||
-			path[0] === 'data-non-member' || path[0] === 'data-survei-dnm' || path[0] === 'data-order-byproduct' || path[0] === 'data-warehouse-stockist'
+			path[0] === 'data-non-member' || path[0] === 'data-survei-dnm' || path[0] === 'data-order-byproduct' || path[0] === 'data-warehouse-stockist' ||
+			path[0] === 'data-sales-area' || path[0] === 'data-transaksi-detail' || path[0] === 'data-transaksi-summary'
 		){
 			this.drawer = false;
 			return this.drawer;
