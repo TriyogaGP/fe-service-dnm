@@ -33,6 +33,7 @@ export const CHECK_PAYMENT = "checkPayment";
 export const CHECK_SHIPPING_STATUS = "checkShippingStatus";
 export const HIT_ORDER_MANUAL = "hitOrderManual";
 export const HIT_COD_CONFIRM = "hitCODConfirm";
+export const HIT_UNHIDE_PRODUCT_PACKAGE = "hitUnhideProductPackage";
 
 // mutation types
 export const SET_DASHBOARD_TRANSAKSI = "SET_DASHBOARD_TRANSAKSI";
@@ -577,6 +578,17 @@ const actions = {
   [HIT_COD_CONFIRM](context, orderNumber) {
     return new Promise((resolve, reject) => {
       ApiService.get(`user/hit-cod-confirmation?inv=${orderNumber}`, token)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+  },
+  [HIT_UNHIDE_PRODUCT_PACKAGE](context) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`user/hit-unhide-product-package`, token)
       .then((response) => {
         resolve(response);
       })

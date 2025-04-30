@@ -5,7 +5,7 @@
       <v-container fluid>
         <v-row>
           <v-col
-            v-for="hasil in pengaturan"
+            v-for="hasil in MenuPengaturan"
             :key="hasil.link"
             cols="12"
             lg="4"
@@ -30,6 +30,7 @@
 			<V_Menu v-if="settingPanel == 3" />
 			<V_HakAksesMenu v-if="settingPanel == 4" />
 			<V_Wilayah2023 v-if="settingPanel == 5" />
+			<V_LinkHit v-if="settingPanel == 6" />
 		</v-card>
   </div>
 </template>
@@ -41,22 +42,31 @@ import V_HakAkses from './page-content/Settings/V_HakAkses.vue'
 import V_Menu from './page-content/Settings/V_Menu.vue'
 import V_HakAksesMenu from './page-content/Settings/V_HakAksesMenu.vue'
 import V_Wilayah2023 from './page-content/Settings/V_Wilayah2023.vue'
+import V_LinkHit from './page-content/Settings/V_LinkHit.vue'
 
 export default {
 	name: "Pengaturan",
-	components: { V_GeneralCMS, V_HakAkses, V_Menu, V_HakAksesMenu, V_Wilayah2023 },
+	components: { V_GeneralCMS, V_HakAkses, V_Menu, V_HakAksesMenu, V_Wilayah2023, V_LinkHit },
 	data: () => ({
 		settingPanel: 0,
+    roleID: "",
     pengaturan: [
-      { title: 'General CMS', icon: 'mdi mdi-wrench-cog', link: 1 },
-      { title: 'Hak Akses', icon: 'mdi mdi-shield-account-variant', link: 2 },
-      { title: 'Menu', icon: 'mdi mdi-view-list', link: 3 },
-      { title: 'Hak Akses Menu', icon: 'mdi mdi-shield-account-variant', link: 4 },
-      { title: 'Wilayah', icon: 'mdi mdi-map', link: 5 },
+      { title: 'General CMS', icon: 'mdi mdi-wrench-cog', link: 1, akses: 'all' },
+      { title: 'Hak Akses', icon: 'mdi mdi-shield-account-variant', link: 2, akses: 'all' },
+      { title: 'Menu', icon: 'mdi mdi-view-list', link: 3, akses: 'all' },
+      { title: 'Hak Akses Menu', icon: 'mdi mdi-shield-account-variant', link: 4, akses: 'all' },
+      { title: 'Wilayah', icon: 'mdi mdi-map', link: 5, akses: 'all' },
+      { title: 'Link Hit', icon: 'mdi mdi-link-box', link: 6, akses: 'admin' },
     ]
 	}),
+  computed: {
+    MenuPengaturan(){
+      return this.roleID !== '1' ? this.pengaturan.filter(val => val.akses == 'all') : this.pengaturan
+    },
+  },
 	mounted() {
 		this.settingPanel = 1
+    this.roleID = localStorage.getItem('roleID')
 	},
   setup() {
     useMeta({
@@ -70,7 +80,7 @@ export default {
 	methods:{
 		LinkRoute(number){
 			this.settingPanel = number
-		}
+		},
 	}
 }
 </script>
