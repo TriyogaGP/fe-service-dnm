@@ -10,6 +10,7 @@ export const GET_WILAYAHPANJAITAN = "getWilayahPanjaitan";
 export const GET_WILAYAH = "getWilayah";
 export const GET_WILAYAH2023 = "getWilayah2023";
 export const GET_BERKAS = "getBerkas";
+export const GET_PRODUCT = "getProduct";
 export const GET_MENU = "getMenu";
 export const GET_UID = "getUID";
 export const GET_CMS_SETTINGS = "getCMSSettings";
@@ -33,6 +34,8 @@ export const GET_USER_BROADCAST = "getUserBroadcast";
 export const GET_COUNT_NOTIFIKASI = "getCountNotifikasi";
 export const GET_DATA_BERKAS = "getDataBerkas";
 export const POST_DATA_BERKAS = "postDataBerkas";
+export const GET_DATA_PRODUCT_SETUP = "getDataProductSetup";
+export const POST_DATA_PRODUCT_SETUP = "postDataProductSetup";
 export const GET_DAERAH = "getDaerah";
 export const POST_DAERAH = "postDaerah";
 
@@ -44,6 +47,7 @@ export const SET_KOMISARISWILAYAH = "SET_KOMISARISWILAYAH";
 export const SET_WILAYAHPANJAITAN = "SET_WILAYAHPANJAITAN";
 export const SET_WILAYAH = "SET_WILAYAH";
 export const SET_BERKAS = "SET_BERKAS";
+export const SET_PRODUCT = "SET_PRODUCT";
 export const SET_MENU = "SET_MENU";
 export const SET_UID = "SET_UID";
 export const SET_CMSSETTINGS = "SET_CMSSETTINGS";
@@ -57,6 +61,7 @@ export const SET_KATEGORI_NOTIFIKASI = "SET_KATEGORI_NOTIFIKASI";
 export const SET_NOTIFIKASI = "SET_NOTIFIKASI";
 export const SET_USER_BROADCAST = "SET_USER_BROADCAST";
 export const SET_DATA_BERKAS = "SET_DATA_BERKAS";
+export const SET_DATA_PRODUCT_SETUP = "SET_DATA_PRODUCT_SETUP";
 export const SET_DAERAH = "SET_DAERAH";
 
 const state = {
@@ -75,6 +80,7 @@ const state = {
   daerahOptions: [],
   menuOptions: [],
   berkasOptions: [],
+  productOptions: [],
 
   dataAnak: [],
   dataKomisarisWilayah: [],
@@ -87,6 +93,7 @@ const state = {
   dataNotifikasi: [],
   dataUserBroadcast: [],
   dataBerkas: [],
+  dataProductSetup: [],
 
   dataCountNotifikasi: null,
   dataUID: null,
@@ -133,6 +140,9 @@ const mutations = {
   [SET_BERKAS](state, data) {
     state.berkasOptions = data
   },
+  [SET_PRODUCT](state, data) {
+    state.productOptions = data
+  },
   
   [SET_UID](state, data) {
     state.dataUID = data
@@ -172,6 +182,9 @@ const mutations = {
   },
   [SET_DATA_BERKAS](state, data) {
     state.dataBerkas = data
+  },
+  [SET_DATA_PRODUCT_SETUP](state, data) {
+    state.dataProductSetup = data
   },
 }
 
@@ -214,6 +227,9 @@ const getters = {
   },
   berkasAll(state) {
     return state.dataBerkas;
+  },
+  productSetupAll(state) {
+    return state.dataProductSetup;
   },
   daerahAll(state) {
     return state.daerahOptions;
@@ -298,6 +314,18 @@ const actions = {
       ApiService.get(`settings/optionsBerkas${data.kategori ? `?kategori=${data.kategori}` : ''}`, token)
       .then((response) => {
           context.commit('SET_BERKAS', response.data.result)
+          resolve(response);
+        })
+        .catch((error) => {
+          reject(error);
+        })
+    });
+  },
+  [GET_PRODUCT](context, data) {
+    return new Promise((resolve, reject) => {
+      ApiService.get(`settings/optionsProduct`, token)
+      .then((response) => {
+          context.commit('SET_PRODUCT', response.data.result)
           resolve(response);
         })
         .catch((error) => {
@@ -590,6 +618,32 @@ const actions = {
   [POST_DATA_BERKAS](context, bodyData) {
     return new Promise((resolve, reject) => {
       ApiService.post(`settings/Berkas`, token, bodyData)
+      .then((response) => {
+          resolve(response);
+        })
+        .catch((error) => {
+          reject(error);
+        })
+    });
+  },
+  [GET_DATA_PRODUCT_SETUP](context, url) {
+    return new Promise((resolve, reject) => {
+      context.commit('SET_LOADINGTABLE', true)
+      ApiService.get(`settings/setup-product?${url}`, token)
+      .then((response) => {
+          context.commit('SET_LOADINGTABLE', false)
+          context.commit('SET_DATA_PRODUCT_SETUP', response.data.result)
+          resolve(response);
+        })
+        .catch((error) => {
+          context.commit('SET_LOADINGTABLE', false)
+          reject(error);
+        })
+    });
+  },
+  [POST_DATA_PRODUCT_SETUP](context, bodyData) {
+    return new Promise((resolve, reject) => {
+      ApiService.post(`settings/setup-product`, token, bodyData)
       .then((response) => {
           resolve(response);
         })

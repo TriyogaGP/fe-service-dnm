@@ -114,6 +114,11 @@ const routes = [
         name: 'DataWarehouseStockist',
         component: () => import('@/views/page-content/DNM/V_WarehouseStockist.vue')
       },
+      {
+        path: '/setup-product-unhide',
+        name: 'SetupProduct',
+        component: () => import('@/views/page-content/DNM/V_SetupProduct.vue')
+      },
 
       {
         path: '/data-sales-area',

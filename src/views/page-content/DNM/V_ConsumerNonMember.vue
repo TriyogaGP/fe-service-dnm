@@ -143,6 +143,7 @@
                 range
                 :multi-calendars="{ solo: true }"
                 :month-change-on-scroll="false"
+                :teleport="true"
                 auto-apply
               />
             </v-col>

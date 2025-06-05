@@ -435,6 +435,17 @@ const myPlugin = {
 			let date = dayjs().add(waktu, text).toDate()
 			return date;
 		},
+		app.config.globalProperties.gabungDenganDan = (items) => {
+			if (items.length === 0) {
+				return '';
+			} else if (items.length === 1) {
+				return items[0];
+			} else if (items.length === 2) {
+				return `${items[0]} dan ${items[1]}`;
+			} else {
+				return `${items.slice(0, -1).join(', ')}, dan ${items[items.length - 1]}`;
+			}
+		},
 		app.config.globalProperties.setPembilang = {
 			pembilang(nilai) {
 				nilai = Math.abs(nilai);

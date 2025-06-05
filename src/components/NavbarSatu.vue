@@ -279,7 +279,7 @@ export default {
 		if(path[0] === 'dashboard' || path[0] === 'settings' || path[0] === 'profile' || path[0] === 'notifikasi' || path[0] === 'data-all-order' || 
 			path[0] === 'data-order-smr-byproduct' || path[0] === 'data-product-variant' || path[0] === 'data-reg-in-apps' || path[0] === 'data-member' ||
 			path[0] === 'data-non-member' || path[0] === 'data-survei-dnm' || path[0] === 'data-order-byproduct' || path[0] === 'data-warehouse-stockist' ||
-			path[0] === 'data-sales-area' || path[0] === 'data-transaksi-detail' || path[0] === 'data-transaksi-summary'
+			path[0] === 'data-sales-area' || path[0] === 'data-transaksi-detail' || path[0] === 'data-transaksi-summary' || path[0] === 'setup-product-unhide'
 		){
 			this.drawer = false;
 			return this.drawer;
@@ -383,7 +383,7 @@ left-tampilan-right {
   overflow-x: hidden;
 }
 .customScroll::-webkit-scrollbar {
-  width: 16px;
+  width: 6px;
 }
 .customScroll::-webkit-scrollbar-thumb {
   background-color: rgba(10, 204, 117, 0.694);

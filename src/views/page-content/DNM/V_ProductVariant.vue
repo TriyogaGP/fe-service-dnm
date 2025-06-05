@@ -377,7 +377,7 @@ export default {
   overflow-x: hidden;
 }
 .customScroll::-webkit-scrollbar {
-  width: 16px;
+  width: 6px;
 }
 .customScroll::-webkit-scrollbar-thumb {
   background-color: #28a154;

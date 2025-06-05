@@ -55,7 +55,7 @@
           />
           <!-- Rp.<span v-html="currencyDotFormatNumber(item.raw.totalPricePlain/1)" /> -->
         </template>
-        <template #[`item.user`]="{ item }">
+        <!-- <template #[`item.user`]="{ item }">
           <v-tooltip bottom>
             <template v-slot:activator="{ props }">
               <v-icon v-bind="props" size="x-large" icon="mdi mdi-information" color="#28a154" />
@@ -79,7 +79,7 @@
               <span v-html="data.name" /> (<span v-html="data.quantity" />)<br>
             </div>
           </v-tooltip>
-        </template>
+        </template> -->
         <template #[`item.paymentStatusFinal`]="{ item }">
           <span>{{ `${item.raw.paymentStatusFinal} -> ${item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentMethod}` }}</span>
           <span v-if="item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentMethod == 'VA'">
@@ -166,20 +166,256 @@
             <td :colspan="columns.length">
               <v-card color="background-dialog-card" class="mt-2 mb-2">
                 <v-card-text>
-                  <table border="1" cellspacing="0" cellpadding="0" width="100%" style="background-color: #28a154; border: #FFF;">
-                    <tr class="table-header">
-                      <td>Status Order</td>
-                      <td>Remarks</td>
-                      <td>Tanggal Proses</td>
-                    </tr>
-                    <template v-if="item.raw.dataTrack.length">
-                      <tr style="font-size: 9pt; font-weight: bold; color: white; padding: 10px" v-for="(data, index) in item.raw.dataTrack" :key="index">
-                        <td style="padding-left: 10px;">{{ data.orderStatus }}</td>
-                        <td style="padding-left: 10px;">{{ data.remarks ? data.remarks : '-' }}</td>
-                        <td style="padding-left: 10px;">{{ convertDateTime(data.createdAt) }}</td>
-                      </tr>
-                    </template>
-                  </table>
+                  <v-row>
+                    <v-col
+                      cols="12"
+                      md="12"
+                    >
+                      <table cellspacing="0" cellpadding="0" width="100%" class="table-style" style="margin-bottom: 5px;">
+                        <tr class="table-row">
+                          <th class="table-header" colspan="4" style="font-size: 10pt; background-color: #272727 !important;">DATA TRANSAKSI</th>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell" width="30%">Invoice / Tanggal Transaksi</td>
+                          <td class="table-cell">{{ `${item.raw.orderNumber} / ${convertDateTime(item.raw.createdAt)}` }}</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell">Total Harga</td>
+                          <td class="table-cell">{{ `Rp.${currencyDotFormatNumber(item.raw.totalPricePlain/1)}` }}</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell">Platform / Bonus Type</td>
+                          <td class="table-cell">{{ `${item.raw.trxPlatformSrc} / ${item.raw.flagSmartplan}` }}</td>
+                        </tr>
+                        <tr class="table-row" v-if="item.raw.shippingType != 'PICKUP'">
+                          <td class="table-cell">Shipping Type / Fee</td>
+                          <td class="table-cell">{{ `${item.raw.shippingType.replaceAll('_', ' ')} / Rp.${currencyDotFormatNumber(item.raw.shippingFee/1)}` }}</td>
+                        </tr>
+                        <tr class="table-row" v-if="item.raw.shippingType == 'PICKUP'">
+                          <td class="table-cell">Shipping Type</td>
+                          <td class="table-cell">{{ item.raw.shippingType.replaceAll('_', ' ') }}</td>
+                        </tr>
+                        <tr class="table-row" v-if="item.raw.shippingType == 'PICKUP'">
+                          <td class="table-cell">Code Pickup</td>
+                          <td class="table-cell">{{ `${item.raw.codePickup ? item.raw.codePickup : '-'}` }}</td>
+                        </tr>
+                        <tr class="table-row" v-if="item.raw.shippingType != 'PICKUP'">
+                          <td class="table-cell">Courier Name / No. Resi</td>
+                          <td class="table-cell">{{ `${item.raw.carrierName} / ${item.raw.shippingReceiptNumber ? item.raw.shippingReceiptNumber : '-'}` }}</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell">Warehouse Code</td>
+                          <td class="table-cell">{{ `${item.raw.stockistorwh.fullname} (${item.raw.stockistorwh.locationCode})` }}</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell">Status / Jenis (Pembayaran)</td>
+                          <td class="table-cell">
+                            <span>{{ `${item.raw.paymentStatusFinal} / ${item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentMethod} ` }}</span>
+                            <span v-if="item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentMethod == 'VA'">
+                              {{ item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentProvider }}
+                              ({{ item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentAccountNo }})
+                            </span>
+                            <span v-else-if="item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentMethod == 'ESPAY'">
+                              {{ item.raw.payment.filter(e => e.paymentMethod !== 'VOUCHER')[0].paymentProvider }}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell">Status Transaksi</td>
+                          <td class="table-cell">{{ item.raw.orderStatusLatest.replaceAll('_', ' ') }}</td>
+                        </tr>
+                      </table>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col
+                      cols="12"
+                      md="12"
+                    >
+                      <table cellspacing="0" cellpadding="0" width="100%" class="table-style" style="margin-bottom: 5px;">
+                        <tr class="table-row">
+                          <th class="table-header" colspan="4" style="font-size: 10pt; background-color: #272727 !important;">DATA USER</th>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell" width="30%">Nama Penerima / No. Telepon</td>
+                          <td class="table-cell">{{ `${item.raw.rcptName} / ${item.raw.rcptPhno ? item.raw.rcptPhno : '-'}` }}</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell" colspan="2" style="font-size: 9pt; padding-left: 10px;">--- DATA PEMBELI ---</td>
+                        </tr>
+                        <tr class="table-row" v-if="item.raw.dataUser.consumerType == 'MEMBER'">
+                          <td class="table-cell">ID Member</td>
+                          <td class="table-cell">{{ item.raw.isDownline ? item.raw.downlineIdMember : item.raw.dataUser.idMember }}</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell">fullname / devicenumber</td>
+                          <td class="table-cell">{{ `${item.raw.isDownline ? item.raw.downlineName : item.raw.dataUser.fullname} / ${item.raw.isDownline ? item.raw.downlinePhoneNumber : item.raw.dataUser.devicenumber ? item.raw.dataUser.devicenumber : '-'}` }}</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell">Account Type / Customer Ref Code</td>
+                          <td class="table-cell">{{ `${item.raw.dataUser.consumerType} / ${item.raw.dataUser.customerRegRefcode ? item.raw.dataUser.customerRegRefcode : '-'}` }}</td>
+                        </tr>
+                        <tr class="table-row" v-if="item.raw.shippingType != 'PICKUP'">
+                          <td class="table-cell">Alamat</td>
+                          <td class="table-cell">{{ item.raw.address.address }}</td>
+                        </tr>
+                        <tr class="table-row" v-if="item.raw.shippingType != 'PICKUP'">
+                          <td class="table-cell">Alamat Detail</td>
+                          <td class="table-cell">{{ item.raw.address.detailAddress }}</td>
+                        </tr>
+                        <tr class="table-row" v-if="item.raw.shippingType != 'PICKUP'">
+                          <td class="table-cell">Latitude / Longitude</td>
+                          <td class="table-cell">{{ `${item.raw.address.latitude ? item.raw.address.latitude : '-'} / ${item.raw.address.longitude ? item.raw.address.longitude : '-'}` }}</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell" colspan="2" style="font-size: 9pt; padding-left: 10px;">--- DATA MEMBER ---</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell">ID Member / fullname</td>
+                          <td class="table-cell">{{ `${item.raw.dataMember.idMember} / ${item.raw.dataMember.fullname}` }}</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell">devicenumber</td>
+                          <td class="table-cell">{{ item.raw.dataMember.devicenumber ? item.raw.dataMember.devicenumber : '-' }}</td>
+                        </tr>
+                      </table>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col
+                      cols="12"
+                      md="12"
+                    >
+                      <table v-if="item.raw.productDetails.filter(x => x.packages.length).length" cellspacing="0" cellpadding="0" width="100%" class="table-style">
+                        <tr class="table-row">
+                          <th class="table-header" style="font-size: 10pt; background-color: #272727 !important;">DATA PRODUCT</th>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell" style="font-size: 9pt; padding-left: 10px;">--- PACKAGE / BUNDLING ---</td>
+                        </tr>
+                      </table>
+                      <div
+                        v-if="item.raw.productDetails.filter(x => x.packages.length).length"
+                        v-for="(data, index) in item.raw.productDetails.filter(x => x.packages.length)"
+                        :key="index"
+                      >
+                        <Fieldset
+                          :legend="`${data.idProductSync} - ${data.name} (Qty: ${data.quantity})`"
+                          :toggleable="true"
+                        >
+                          <table cellspacing="0" cellpadding="0" width="100%" class="table-style">
+                            <tr class="table-row">
+                              <th width="10%" class="table-header">Gambar</th>
+                              <th width="50%" class="table-header">Nama Product</th>
+                              <th width="20%" class="table-header">Variant</th>
+                              <th width="10%" class="table-header">Quantity</th>
+                            </tr>
+                            <template  v-for="(data2, index2) in data.packages" :key="index2">
+                              <tr class="table-row" v-if="data2.selectedVariants.length" v-for="(data3, index3) in data2.selectedVariants" :key="index3">
+                                <td class="d-flex flex-column justify-space-between align-center table-cell">
+                                  <div class="avatar">
+                                    <v-img :src="data2.image" />
+                                  </div>
+                                </td>
+                                <td class="table-cell">{{ data2.productName }}</td>
+                                <td style="text-align: center;" class="table-cell">{{ data3.valueString }}</td>
+                                <td style="text-align: center;" class="table-cell">{{ data3.quantity }}</td>
+                              </tr>
+                              <tr class="table-row" v-else>
+                                <td class="d-flex flex-column justify-space-between align-center table-cell">
+                                  <div class="avatar">
+                                    <v-img :src="data2.image" />
+                                  </div>
+                                </td>
+                                <td class="table-cell">{{ data2.productName }}</td>
+                                <td style="text-align: center;" class="table-cell">-</td>
+                                <td style="text-align: center;" class="table-cell">{{ data2.quantity }}</td>
+                              </tr>
+                            </template>
+                          </table>
+                        </Fieldset>
+                      </div>
+                      <table v-if="item.raw.productDetails.filter(x => !x.packages.length).length" cellspacing="0" cellpadding="0" width="100%" class="table-style">
+                        <tr class="table-row">
+                          <th class="table-header" colspan="3" style="font-size: 10pt; background-color: #272727 !important;">DATA PRODUCT</th>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="table-cell" colspan="3" style="font-size: 9pt; padding-left: 10px;">--- SINGLE ---</td>
+                        </tr>
+                        <tr class="table-row">
+                          <th class="table-header" width="10%">ID Product</th>
+                          <th class="table-header" width="50%">Nama Product</th>
+                          <th class="table-header" width="10%">Quantity</th>
+                        </tr>
+                        <tr class="table-row" v-for="(data, index) in item.raw.productDetails.filter(x => !x.packages.length)" :key="index">
+                          <td class="table-cell" style="text-align: center;">{{ data.idProductSync }}</td>
+                          <td class="table-cell">{{ data.name }}</td>
+                          <td class="table-cell" style="text-align: center;">{{ data.quantity }}</td>
+                        </tr>
+                      </table>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col
+                      cols="12"
+                      md="12"
+                    >
+                      <table cellspacing="0" cellpadding="0" width="100%" class="table-style">
+                        <tr class="table-row">
+                          <th colspan="5" style="font-size: 10pt; background-color: #272727 !important;" class="table-header">DATA PEMBAYARAN</th>
+                        </tr>
+                        <tr class="table-row">
+                          <th width="10%" class="table-header">Payment Method</th>
+                          <th width="30%" class="table-header">Remarks</th>
+                          <th width="10%" class="table-header">Pay Amount</th>
+                          <th width="10%" class="table-header">Charge</th>
+                          <th width="30%" class="table-header">Status</th>
+                        </tr>
+                        <template v-if="item.raw.shippingType != 'DELIVERY_COD'">
+                          <tr v-for="(data, index) in item.raw.payment" :key="index" class="table-row">
+                            <td class="table-cell" style="text-align: center;">{{ `${data.paymentMethod} -> ${data.paymentProvider}` }}</td>
+                            <td class="table-cell">{{ data.remarks ? data.remarks : '-' }}</td>
+                            <td class="table-cell" style="text-align: center;">{{ `Rp.${currencyDotFormatNumber(data.total/1)}` }}</td>
+                            <td class="table-cell" style="text-align: center;">{{ `Rp.${data.adminFee ? currencyDotFormatNumber(data.adminFee/1) : '0'}` }}</td>
+                            <td class="table-cell" style="text-align: center;">{{ data.notes }}</td>
+                          </tr>
+                        </template>
+                        <template v-else>
+                          <tr v-for="(data, index) in item.raw.payment" :key="index" class="table-row">
+                            <td class="table-cell" style="text-align: center;">{{ data.paymentMethod == 'COD' ?  'COD - Bayar ditempat' : data.paymentMethod }}</td>
+                            <td class="table-cell">{{ data.remarks ? data.remarks : '-' }}</td>
+                            <td class="table-cell" style="text-align: center;">{{ `Rp.${currencyDotFormatNumber(data.total/1)}` }}</td>
+                            <td class="table-cell" style="text-align: center;">{{ `Rp.${data.adminFee ? currencyDotFormatNumber(data.adminFee/1) : '0'}` }}</td>
+                            <td class="table-cell" style="text-align: center;">pending</td>
+                          </tr>
+                        </template>
+                      </table>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col
+                      cols="12"
+                      md="12"
+                    >
+                      <table cellspacing="0" cellpadding="0" width="100%" class="table-style">
+                        <tr class="table-row">
+                          <th colspan="4" style="font-size: 10pt; background-color: #272727 !important;" class="table-header">TRACKING ORDER</th>
+                        </tr>
+                        <tr class="table-row">
+                          <th width="30%" class="table-header">Status Order</th>
+                          <th width="50%" class="table-header">Remarks</th>
+                          <th width="20%" class="table-header">Tanggal Proses</th>
+                        </tr>
+                        <template v-if="item.raw.dataTrack.length">
+                          <tr v-for="(data, index) in item.raw.dataTrack" :key="index" class="table-row">
+                            <td class="table-cell">{{ data.orderStatus }}</td>
+                            <td class="table-cell">{{ data.remarks ? data.remarks : '-' }}</td>
+                            <td class="table-cell">{{ convertDateTime(data.createdAt) }}</td>
+                          </tr>
+                        </template>
+                      </table>
+                    </v-col>
+                  </v-row>
                 </v-card-text>
               </v-card>
             </td>
@@ -632,13 +868,13 @@ export default {
       { title: "#", key: "data-table-expand", sortable: false, width: "3%" },
       { title: "INVOICE", key: "orderNumber", sortable: false, width: "15%" },
       // { title: "TANGGAL ORDER", key: "createdAt", sortable: false, width: "10%" },
-      { title: "PENERIMA", key: "receipt", sortable: false },
-      { title: "TOTAL HARGA", key: "total", sortable: false },
-      { title: "DATA USER", key: "user", sortable: false, width: "3%" },
-      { title: "DATA PRODUCT", key: "product", sortable: false, width: "3%" },
+      { title: "PENERIMA", key: "receipt", sortable: false, width: "10%" },
+      { title: "TOTAL HARGA", key: "total", sortable: false, width: "3%" },
+      // { title: "DATA USER", key: "user", sortable: false, width: "3%" },
+      // { title: "DATA PRODUCT", key: "product", sortable: false, width: "3%" },
       { title: "STATUS PEMBAYARAN", key: "paymentStatusFinal", sortable: false, width: "12%" },
-      { title: "TIPE ORDER", key: "shippingType", sortable: false, width: "18%" },
-      { title: "STATUS ORDER", key: "orderStatusLatest", sortable: false, width: "18%" },
+      { title: "TIPE ORDER", key: "shippingType", sortable: false, width: "20%" },
+      { title: "STATUS ORDER", key: "orderStatusLatest", sortable: false, width: "20%" },
     ],
     statusOrder: 'ALL',
     invoice: '',
@@ -942,6 +1178,86 @@ export default {
   font-weight: bold;
   color: white;
   font-size: 9pt;
+  text-align: center !important;
+  background: #28a154 !important; 
+}
+.table-row {
+  font-weight: bold;
+  color: white;
+  font-size: 11pt;
   text-align: center;
 }
+
+.v-col-md-6, .v-col-md-12 {
+  padding: 6px;
+}
+
+.avatar {
+  border: solid 2px #000;
+  border-radius: 10px;
+  align-items: flex-end;
+  display: flex;
+  justify-content: center;
+  line-height: normal;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  overflow: hidden;
+  width: 50%;
+  height: auto;
+}
+
+.table-style {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-style .table-header,
+.table-style .table-cell {
+  background-color: #28a154;
+  border-right: 1px solid #bbb;
+  border-bottom: 1px solid #bbb;
+  font-size: 8.5pt; 
+  font-weight: bold; 
+  color: white; 
+  padding: 3px 0 3px 5px;
+}
+
+.table-style .table-cell {
+  text-align: left;
+  padding-left: 10px;
+}
+
+.table-style .table-row .table-header:first-child,
+.table-style .table-row .table-cell:first-child {
+  border-left: 1px solid #bbb;
+}
+
+.table-style .table-header {
+  border-top: 1px solid #bbb;
+  font-weight: bold;
+  color: white;
+  font-size: 8.5pt;
+  text-align: center !important;
+  background: #28a154 !important;
+}
+
+.table-style .table-row:first-child .table-header:first-child {
+  border-top-left-radius: 6px;
+}
+
+.table-style .table-row:first-child .table-header:last-child {
+  border-top-right-radius: 6px;
+}
+
+.table-style .table-row:last-child .table-cell:first-child {
+  border-bottom-left-radius: 6px;
+}
+
+.table-style .table-row:last-child .table-cell:last-child {
+  border-bottom-right-radius: 6px;
+}
+
+
+
 </style>
